@@ -164,8 +164,8 @@ export default async function ItemDetailPage({
                       {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
                     </div>
                     <ShareButton 
-                      text={`${item.name}の${stageName}を投稿しました！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー`}
-                      url={`http://localhost:3000/items/${item.id}`} 
+                      text={`${item.name}の${stageName}を投稿しました！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー\n`}
+                      url={`http://lovereview.vercel.app/items/${item.id}`} 
                     />
                   </div>
 
