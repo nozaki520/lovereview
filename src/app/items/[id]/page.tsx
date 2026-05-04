@@ -3,6 +3,8 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { ArrowLeft, Clock, MessageSquareQuote } from 'lucide-react'
+import ShareButton from '@/components/ShareButton'
+import StillUsingButton from '@/components/StillUsingButton'
 
 export default async function ItemDetailPage({
   params
@@ -16,6 +18,32 @@ export default async function ItemDetailPage({
   const { data: item } = await supabase.from('items').select('*').eq('id', resolvedParams.id).single()
 
   if (!item) return <div>商品が見つかりません</div>
+
+// ログインユーザー取得
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // ユーザーがこの商品を登録済みか確認
+  const { data: userItem } = user ? await supabase
+    .from('user_items')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('item_id', item.id)
+    .single() : { data: null }
+
+  // 今日すでにまだ使ってる！を押したか確認
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const { data: todayLog } = userItem ? await supabase
+    .from('still_using_logs')
+    .select('id')
+    .eq('user_item_id', userItem.id)
+    .gte('logged_at', today.toISOString())
+    .single() : { data: null }
+
+  const alreadyPressedToday = !!todayLog
+  const daysElapsed = userItem
+    ? Math.floor((Date.now() - new Date(userItem.purchased_at).getTime()) / (1000 * 60 * 60 * 24))
+    : 0
 
   // Fetch reviews with user info
   const { data: reviews } = await supabase
@@ -73,6 +101,17 @@ export default async function ItemDetailPage({
         </Link>
       </div>
 
+        {userItem && (
+          <div className="mt-6">
+            <StillUsingButton
+              userItemId={userItem.id}
+              itemName={item.name}
+              daysElapsed={daysElapsed}
+              initialPressed={alreadyPressedToday}
+            />
+          </div>
+        )}
+
       {/* Reviews Section */}
       <div>
         <h2 className="text-2xl font-bold mb-8 flex items-center gap-3 border-b border-white/10 pb-4">
@@ -120,8 +159,14 @@ export default async function ItemDetailPage({
                     </div>
                   </div>
                   
-                  <div className="mb-4 flex items-center gap-1 text-amber-500 text-sm">
-                    {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-amber-500 text-sm">
+                      {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
+                    </div>
+                    <ShareButton 
+                      text={`${item.name}の${stageName}を投稿しました！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー`}
+                      url={`http://localhost:3000/items/${item.id}`} 
+                    />
                   </div>
 
                   <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{review.body}</p>

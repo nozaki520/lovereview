@@ -2,21 +2,42 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { Search, Plus, Home } from 'lucide-react'
 
+const GENRES = [
+  { value: '', label: 'すべて' },
+  { value: 'book', label: '📚 本・漫画' },
+  { value: 'game', label: '🎮 ゲーム' },
+  { value: 'gadget', label: '📱 ガジェット・家電' },
+  { value: 'fashion', label: '👗 ファッション' },
+  { value: 'food', label: '🍜 食品' },
+  { value: 'other', label: '🎁 その他' },
+]
+
 export default async function ExplorePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string, genre?: string, sort?: string }>
 }) {
   const resolvedSearchParams = await searchParams
   const q = resolvedSearchParams.q || ''
-  
+  const genre = resolvedSearchParams.genre || ''
+  const sort = resolvedSearchParams.sort || 'newest'
+
   const supabase = await createClient()
-  
-  let query = supabase.from('items').select('*').order('created_at', { ascending: false }).limit(20)
-  
-  if (q) {
-    query = query.ilike('name', `%${q}%`)
+
+  let query = supabase.from('items').select('*')
+
+  if (q) query = query.ilike('name', `%${q}%`)
+  if (genre) query = query.eq('genre', genre)
+
+  if (sort === 'rating') {
+    query = query.order('rating_average', { ascending: false })
+  } else if (sort === 'reviews') {
+    query = query.order('rating_count', { ascending: false })
+  } else {
+    query = query.order('created_at', { ascending: false })
   }
+
+  query = query.limit(30)
 
   const { data: items } = await query
 
@@ -31,32 +52,74 @@ export default async function ExplorePage({
             探す・登録する
           </h1>
         </div>
-        <Link 
-          href="/items/new" 
-          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-amber-500/20 to-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full hover:bg-amber-500/20 transition-colors font-bold shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+        <Link
+          href="/items/new"
+          className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-amber-500/20 to-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full hover:bg-amber-500/20 transition-colors font-bold"
         >
           <Plus className="w-5 h-5" />
           新規商品登録
         </Link>
       </header>
 
-      <div className="mb-8">
-        <form className="relative max-w-2xl">
+      {/* 検索 */}
+      <form className="mb-6">
+        <div className="relative max-w-2xl mb-4">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
-          <input 
-            type="text" 
+          <input
+            type="text"
             name="q"
             defaultValue={q}
-            placeholder="商品名で検索..." 
+            placeholder="商品名で検索..."
             className="w-full pl-14 pr-4 py-4 bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-white font-medium shadow-lg"
           />
-        </form>
-      </div>
+          <input type="hidden" name="genre" value={genre} />
+          <input type="hidden" name="sort" value={sort} />
+        </div>
 
+        {/* ジャンルフィルター */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {GENRES.map(g => (
+            <Link
+              key={g.value}
+              href={`/explore?q=${q}&genre=${g.value}&sort=${sort}`}
+              className={`px-4 py-2 rounded-full text-sm font-bold border transition-all ${
+                genre === g.value
+                  ? 'bg-amber-500 text-black border-amber-500'
+                  : 'bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10'
+              }`}
+            >
+              {g.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* ソート */}
+        <div className="flex gap-2">
+          {[
+            { value: 'newest', label: '🆕 新着順' },
+            { value: 'rating', label: '⭐ 評価順' },
+            { value: 'reviews', label: '💬 レビュー数順' },
+          ].map(s => (
+            <Link
+              key={s.value}
+              href={`/explore?q=${q}&genre=${genre}&sort=${s.value}`}
+              className={`px-4 py-2 rounded-full text-sm font-bold border transition-all ${
+                sort === s.value
+                  ? 'bg-white/20 text-white border-white/30'
+                  : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
+              }`}
+            >
+              {s.label}
+            </Link>
+          ))}
+        </div>
+      </form>
+
+      {/* 商品一覧 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items?.map(item => (
           <Link key={item.id} href={`/items/${item.id}`} className="block group">
-            <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 h-full hover:border-amber-500/50 transition-all hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(16,185,129,0.15)]">
+            <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 h-full hover:border-amber-500/50 transition-all hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(245,158,11,0.15)]">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center overflow-hidden border border-white/10">
                   {item.image_url ? (
@@ -66,7 +129,7 @@ export default async function ExplorePage({
                   )}
                 </div>
                 <span className="px-3 py-1 bg-white/5 text-zinc-300 text-xs font-medium rounded-full border border-white/10">
-                  {item.genre}
+                  {GENRES.find(g => g.value === item.genre)?.label || item.genre}
                 </span>
               </div>
               <h3 className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors line-clamp-2 mb-2">
@@ -84,8 +147,8 @@ export default async function ExplorePage({
         {items?.length === 0 && (
           <div className="col-span-full py-20 text-center text-zinc-400 font-medium">
             <div className="text-4xl mb-4">🔍</div>
-            「{q}」に一致する商品は見つかりませんでした。<br/>
-            ぜひ新しく登録してください！
+            {q ? `「${q}」に一致する商品は見つかりませんでした。` : '商品がまだありません。'}
+            <br />ぜひ新しく登録してください！
           </div>
         )}
       </div>

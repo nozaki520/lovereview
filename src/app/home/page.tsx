@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import { LogOut, Flame, Clock } from 'lucide-react'
 import Link from 'next/link'
 import ShareButton from '@/components/ShareButton'
+import NotificationBell from '@/components/NotificationBell'
+import LikeButton from '@/components/LikeButton'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -22,13 +24,20 @@ export default async function HomePage() {
     .eq('id', user.id)
     .single()
 
+    // 通知取得
+  const { data: notifications } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(20)
+
   // Fetch feed events
   const { data: feedEvents } = await supabase
     .from('feed_events')
     .select(`
       *,
-      users(display_name, avatar_url),
-      items(id, name, genre, image_url)
+    users(display_name, avatar_url, username),      items(id, name, genre, image_url)
     `)
     .order('created_at', { ascending: false })
     .limit(30)
@@ -39,6 +48,23 @@ export default async function HomePage() {
   if (reviewIds.length > 0) {
     const { data } = await supabase.from('reviews').select('id, rating, body, stage, days_elapsed').in('id', reviewIds)
     reviews = data || []
+  }
+
+// Fetch likes for reviews
+  const likesCounts: Record<string, number> = {}
+  const userLikes: Record<string, boolean> = {}
+  if (reviewIds.length > 0) {
+    const { data: likesData } = await supabase
+      .from('likes')
+      .select('review_id, user_id')
+      .in('review_id', reviewIds)
+    
+    likesData?.forEach(like => {
+      likesCounts[like.review_id] = (likesCounts[like.review_id] || 0) + 1
+      if (like.user_id === user.id) {
+        userLikes[like.review_id] = true
+      }
+    })
   }
 
   const eventsWithReviews = feedEvents?.map(event => {
@@ -64,6 +90,7 @@ export default async function HomePage() {
             )}
             {profile?.display_name || 'ゲストユーザー'}
           </Link>
+          <NotificationBell initialNotifications={notifications || []} />
           <form action="/auth/signout" method="post">
             <button className="p-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors">
               <LogOut className="w-4 h-4 text-zinc-300" />
@@ -102,7 +129,9 @@ export default async function HomePage() {
                          <span className="text-lg">👤</span>
                       </div>
                       <div>
-                        <div className="font-bold text-zinc-200">{event.users?.display_name || '名無し'}</div>
+                        <Link href={`/profile/${event.users?.username}`} className="font-bold text-zinc-200 hover:text-amber-400 transition-colors">
+                          {event.users?.display_name || '名無し'}
+                        </Link>
                         <div className="text-xs text-zinc-500 flex items-center gap-1">
                            <Clock className="w-3 h-3" />
                            {new Date(event.created_at).toLocaleString('ja-JP')}
@@ -146,7 +175,13 @@ export default async function HomePage() {
                       <p className="text-zinc-300 leading-relaxed text-sm whitespace-pre-wrap mb-4">
                         {review.body}
                       </p>
-                      <div className="flex justify-end">
+                      <div className="flex justify-end items-center gap-3">
+                        <LikeButton
+                          reviewId={review.id}
+                          initialLiked={userLikes[review.id] || false}
+                          initialCount={likesCounts[review.id] || 0}
+                          userId={user.id}
+                        />
                         <ShareButton 
                           text={`${event.items?.name}の${stageName}！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー`}
                           url={`http://localhost:3000/items/${event.items?.id}`} 
