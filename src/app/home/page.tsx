@@ -126,9 +126,9 @@ export default async function HomePage() {
                 <div key={event.id} className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-lg hover:border-amber-500/30 transition-colors">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/10 rounded-full overflow-hidden flex items-center justify-center">
+                      <Link href={`/profile/${event.users?.username}`} className="w-10 h-10 bg-white/10 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-amber-400 transition-all">
                          <span className="text-lg">👤</span>
-                      </div>
+                      </Link>
                       <div>
                         <Link href={`/profile/${event.users?.username}`} className="font-bold text-zinc-200 hover:text-amber-400 transition-colors">
                           {event.users?.display_name || '名無し'}
