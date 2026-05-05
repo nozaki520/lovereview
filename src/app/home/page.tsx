@@ -82,6 +82,7 @@ export default async function HomePage() {
         </h1>
         <div className="flex items-center gap-6">
           <Link href="/explore" className="text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🔍 探す・登録する</Link>
+          <Link href="/ranking" className="text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🏆 ランキング</Link>
           <Link href="/settings/profile" className="text-sm font-medium text-zinc-300 flex items-center gap-2 hover:bg-white/5 px-3 py-1.5 rounded-full transition-colors">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} className="w-8 h-8 rounded-full object-cover" />
