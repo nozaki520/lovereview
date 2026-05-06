@@ -92,9 +92,21 @@ export default async function ItemDetailPage({
           )}
         </div>
         <div className="flex-1">
-          <span className="px-3 py-1 bg-white/5 text-zinc-300 text-xs font-bold rounded-full border border-white/10 inline-block mb-4">
-            {item.genre}
-          </span>
+          {(() => {
+            const genreLabels: Record<string, string> = {
+              'book': '📚 本・漫画',
+              'game': '🎮 ゲーム',
+              'gadget': '📱 ガジェット・家電',
+              'fashion': '👗 ファッション',
+              'food': '🍜 食品',
+              'other': '🎁 その他',
+            }
+            return (
+              <span className="px-3 py-1 bg-white/5 text-zinc-300 text-xs font-bold rounded-full border border-white/10 inline-block mb-4">
+                {genreLabels[item.genre] || item.genre}
+              </span>
+            )
+          })()}
           <h1 className="text-3xl font-bold mb-4 leading-tight">{item.name}</h1>
           <div className="flex items-center gap-4 text-sm font-bold text-zinc-300 mb-6 bg-white/5 inline-flex px-4 py-2 rounded-xl border border-white/5">
             <span className="flex items-center gap-1 text-yellow-500">★ {item.rating_average.toFixed(1)}</span>
