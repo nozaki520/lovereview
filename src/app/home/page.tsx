@@ -6,6 +6,7 @@ import { LogOut, Flame, Clock } from 'lucide-react'
 import Link from 'next/link'
 import ShareButton from '@/components/ShareButton'
 import NotificationBell from '@/components/NotificationBell'
+import MobileMenu from '@/components/MobileMenu'
 import LikeButton from '@/components/LikeButton'
 
 export default async function HomePage() {
@@ -93,10 +94,11 @@ export default async function HomePage() {
           </Link>
           <NotificationBell initialNotifications={notifications || []} />
           <form action="/auth/signout" method="post">
-            <button className="p-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors">
+            <button className="hidden md:block p-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors">
               <LogOut className="w-4 h-4 text-zinc-300" />
             </button>
           </form>
+          <MobileMenu username={profile?.username} />
         </div>
       </header>
 
