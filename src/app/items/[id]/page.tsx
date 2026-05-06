@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Clock, MessageSquareQuote } from 'lucide-react'
 import ShareButton from '@/components/ShareButton'
 import StillUsingButton from '@/components/StillUsingButton'
+import DeleteReviewButton from '@/components/DeleteReviewButton'
 
 export default async function ItemDetailPage({
   params
@@ -170,6 +171,15 @@ export default async function ItemDetailPage({
                   </div>
 
                   <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{review.body}</p>
+                  {user && (
+                    <div className="flex justify-end mt-3">
+                      <DeleteReviewButton
+                        reviewId={review.id}
+                        userId={review.user_id}
+                        currentUserId={user.id}
+                      />
+                    </div>
+                  )}
                 </div>
               )
             })}
