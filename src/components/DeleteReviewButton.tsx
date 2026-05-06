@@ -9,9 +9,10 @@ interface DeleteReviewButtonProps {
   reviewId: string
   userId: string
   currentUserId: string
+  itemId: string
 }
 
-export default function DeleteReviewButton({ reviewId, userId, currentUserId }: DeleteReviewButtonProps) {
+export default function DeleteReviewButton({ reviewId, userId, currentUserId, itemId }: DeleteReviewButtonProps) {
   const [loading, setLoading] = useState(false)
   const [confirm, setConfirm] = useState(false)
   const router = useRouter()
@@ -27,9 +28,35 @@ export default function DeleteReviewButton({ reviewId, userId, currentUserId }: 
     setLoading(true)
     const supabase = createClient()
 
-    await supabase.from('likes').delete().eq('review_id', reviewId)
+await supabase.from('likes').delete().eq('review_id', reviewId)
     await supabase.from('feed_events').delete().eq('target_id', reviewId)
     await supabase.from('reviews').delete().eq('id', reviewId)
+
+    // 星平均を再計算して更新
+    const { data: remainingReviews } = await supabase
+      .from('reviews')
+      .select('rating, user_id')
+      .eq('item_id', itemId)
+      .not('rating', 'is', null)
+
+    if (remainingReviews && remainingReviews.length > 0) {
+      const uniqueUserRatings = Object.values(
+        remainingReviews.reduce((acc: any, r: any) => {
+          acc[r.user_id] = r.rating
+          return acc
+        }, {})
+      ) as number[]
+      const avg = uniqueUserRatings.reduce((a, b) => a + b, 0) / uniqueUserRatings.length
+      await supabase
+        .from('items')
+        .update({ rating_average: avg, rating_count: uniqueUserRatings.length })
+        .eq('id', itemId)
+    } else {
+      await supabase
+        .from('items')
+        .update({ rating_average: 0, rating_count: 0 })
+        .eq('id', itemId)
+    }
 
     router.refresh()
     setLoading(false)

@@ -177,6 +177,7 @@ export default async function ItemDetailPage({
                         reviewId={review.id}
                         userId={review.user_id}
                         currentUserId={user.id}
+                        itemId={item.id}
                       />
                     </div>
                   )}
