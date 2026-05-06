@@ -127,7 +127,11 @@ export default async function HomePage() {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <Link href={`/profile/${event.users?.username}`} className="w-10 h-10 bg-white/10 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-amber-400 transition-all">
-                         <span className="text-lg">👤</span>
+                        {event.users?.avatar_url ? (
+                          <img src={event.users.avatar_url} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-lg">👤</span>
+                        )}
                       </Link>
                       <div>
                         <Link href={`/profile/${event.users?.username}`} className="font-bold text-zinc-200 hover:text-amber-400 transition-colors">
