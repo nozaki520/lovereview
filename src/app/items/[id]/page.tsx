@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, MessageSquareQuote } from 'lucide-react'
 import ShareButton from '@/components/ShareButton'
 import StillUsingButton from '@/components/StillUsingButton'
 import DeleteReviewButton from '@/components/DeleteReviewButton'
+import EditReviewButton from '@/components/EditReviewButton'
 
 export default async function ItemDetailPage({
   params
@@ -223,7 +224,14 @@ export default async function ItemDetailPage({
 
                   <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{review.body}</p>
                   {user && (
-                    <div className="flex justify-end mt-3">
+                    <div className="flex justify-end gap-2 mt-3">
+                      <EditReviewButton
+                        reviewId={review.id}
+                        userId={review.user_id}
+                        currentUserId={user.id}
+                        initialBody={review.body}
+                        initialRating={review.rating || 0}
+                      />
                       <DeleteReviewButton
                         reviewId={review.id}
                         userId={review.user_id}
