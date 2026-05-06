@@ -46,6 +46,28 @@ export default async function ItemDetailPage({
     ? Math.floor((Date.now() - new Date(userItem.purchased_at).getTime()) / (1000 * 60 * 60 * 24))
     : 0
 
+  // 愛用スコアデータ取得
+  const { data: userItems } = await supabase
+    .from('user_items')
+    .select('purchased_at, is_still_using')
+    .eq('item_id', item.id)
+
+  const totalUsers = userItems?.length || 0
+  const stillUsingUsers = userItems?.filter(u => u.is_still_using).length || 0
+  const avgDays = totalUsers > 0
+    ? Math.floor(
+        userItems!.reduce((acc, u) => {
+          return acc + Math.floor((Date.now() - new Date(u.purchased_at).getTime()) / (1000 * 60 * 60 * 24))
+        }, 0) / totalUsers
+      )
+    : 0
+
+  const { count: longTermCount } = await supabase
+    .from('reviews')
+    .select('*', { count: 'exact', head: true })
+    .eq('item_id', item.id)
+    .in('stage', ['month6', 'year1', 'beyond'])
+
   // Fetch reviews with user info
   const { data: reviews } = await supabase
     .from('reviews')
@@ -80,6 +102,23 @@ export default async function ItemDetailPage({
             <span className="text-zinc-400">{item.rating_count}件のレビュー</span>
           </div>
           <p className="text-zinc-400 text-sm whitespace-pre-wrap leading-relaxed">{item.description || "説明はありません。"}</p>
+          {/* 愛用スコア */}
+          {totalUsers > 0 && (
+            <div className="mt-6 grid grid-cols-3 gap-3">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+                <div className="text-2xl font-bold text-amber-400">{avgDays}</div>
+                <div className="text-xs text-zinc-500 mt-1">平均愛用日数</div>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+                <div className="text-2xl font-bold text-emerald-400">{stillUsingUsers}</div>
+                <div className="text-xs text-zinc-500 mt-1">まだ使ってる！人数</div>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+                <div className="text-2xl font-bold text-blue-400">{longTermCount || 0}</div>
+                <div className="text-xs text-zinc-500 mt-1">長期レビュー数</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
