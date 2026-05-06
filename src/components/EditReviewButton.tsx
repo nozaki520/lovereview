@@ -11,6 +11,7 @@ interface EditReviewButtonProps {
   currentUserId: string
   initialBody: string
   initialRating: number
+  itemId: string
 }
 
 export default function EditReviewButton({
@@ -19,6 +20,7 @@ export default function EditReviewButton({
   currentUserId,
   initialBody,
   initialRating,
+  itemId,
 }: EditReviewButtonProps) {
   const [editing, setEditing] = useState(false)
   const [body, setBody] = useState(initialBody)
@@ -36,6 +38,27 @@ export default function EditReviewButton({
       .from('reviews')
       .update({ body, rating, updated_at: new Date().toISOString() })
       .eq('id', reviewId)
+
+    // 星平均を再計算
+    const { data: allReviews } = await supabase
+      .from('reviews')
+      .select('rating, user_id')
+      .eq('item_id', itemId)
+      .not('rating', 'is', null)
+
+    if (allReviews && allReviews.length > 0) {
+      const uniqueUserRatings = Object.values(
+        allReviews.reduce((acc: any, r: any) => {
+          acc[r.user_id] = r.rating
+          return acc
+        }, {})
+      ) as number[]
+      const avg = uniqueUserRatings.reduce((a, b) => a + b, 0) / uniqueUserRatings.length
+      await supabase
+        .from('items')
+        .update({ rating_average: avg, rating_count: uniqueUserRatings.length })
+        .eq('id', itemId)
+    }
 
     setEditing(false)
     setLoading(false)

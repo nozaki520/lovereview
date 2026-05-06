@@ -231,6 +231,7 @@ export default async function ItemDetailPage({
                         currentUserId={user.id}
                         initialBody={review.body}
                         initialRating={review.rating || 0}
+                        itemId={item.id}
                       />
                       <DeleteReviewButton
                         reviewId={review.id}
