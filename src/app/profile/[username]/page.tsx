@@ -7,11 +7,15 @@ import { ArrowLeft } from 'lucide-react'
 import FollowButton from '@/components/FollowButton'
 
 export default async function ProfilePage({
-  params
+  params,
+  searchParams,
 }: {
   params: Promise<{ username: string }>
+  searchParams: Promise<{ tab?: string }>
 }) {
   const resolvedParams = await params
+  const resolvedSearchParams = await searchParams
+  const activeTab = resolvedSearchParams.tab || 'reviews'
   const supabase = await createClient()
 
   // ログインユーザー取得
@@ -117,89 +121,95 @@ export default async function ProfilePage({
       <div className="flex gap-2 mb-6 border-b border-white/10 pb-4">
         <Link
           href={`/profile/${resolvedParams.username}?tab=reviews`}
-          className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-            !resolvedParams || true ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-white/5 text-zinc-400 border border-white/10'
+          className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
+            activeTab === 'reviews'
+              ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+              : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
           }`}
         >
           📝 レビュー ({reviews?.length || 0})
         </Link>
         <Link
           href={`/profile/${resolvedParams.username}?tab=items`}
-          className="px-4 py-2 rounded-full text-sm font-bold bg-white/5 text-zinc-400 border border-white/10 hover:bg-white/10 transition-all"
+          className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
+            activeTab === 'items'
+              ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+              : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
+          }`}
         >
           📦 登録商品 ({userItems?.length || 0})
         </Link>
       </div>
 
-      {/* レビュー一覧 */}
-      <h2 className="text-xl font-bold mb-4 text-zinc-200">熟成レビュー</h2>
-      <div className="space-y-4">
-        {reviews && reviews.length > 0 ? (
-          reviews.map((review: any) => {
-            const stageLabels: Record<string, string> = {
-              'day1': 'ファーストインプレッション',
-              'week1': '1週間後レビュー',
-              'month1': '1ヶ月後レビュー',
-              'month3': '3ヶ月後レビュー',
-              'month6': '半年後レビュー',
-              'year1': '1年後レビュー',
-              'beyond': '長期レビュー'
-            }
-            return (
-              <div key={review.id} className="bg-black/40 border border-white/10 rounded-2xl p-5 hover:border-amber-500/30 transition-colors">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <div className="font-bold text-white">{review.items?.name}</div>
-                    <div className="text-xs text-zinc-500">{review.items?.genre}</div>
+      {/* コンテンツ */}
+      {activeTab === 'reviews' ? (
+        <div className="space-y-4">
+          {reviews && reviews.length > 0 ? (
+            reviews.map((review: any) => {
+              const stageLabels: Record<string, string> = {
+                'day1': 'ファーストインプレッション',
+                'week1': '1週間後レビュー',
+                'month1': '1ヶ月後レビュー',
+                'month3': '3ヶ月後レビュー',
+                'month6': '半年後レビュー',
+                'year1': '1年後レビュー',
+                'beyond': '長期レビュー'
+              }
+              return (
+                <div key={review.id} className="bg-black/40 border border-white/10 rounded-2xl p-5 hover:border-amber-500/30 transition-colors">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <div className="font-bold text-white">{review.items?.name}</div>
+                      <div className="text-xs text-zinc-500">{review.items?.genre}</div>
+                    </div>
+                    <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold">
+                      {stageLabels[review.stage] || review.stage}
+                    </span>
                   </div>
-                  <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold">
-                    {stageLabels[review.stage] || review.stage}
-                  </span>
+                  <div className="text-amber-500 text-sm mb-2">
+                    {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
+                    <span className="text-zinc-500 text-xs ml-2">{review.days_elapsed}日目</span>
+                  </div>
+                  <p className="text-zinc-300 text-sm leading-relaxed">{review.body}</p>
                 </div>
-                <div className="text-amber-500 text-sm mb-2">
-                  {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
-                  <span className="text-zinc-500 text-xs ml-2">{review.days_elapsed}日目</span>
-                </div>
-                <p className="text-zinc-300 text-sm leading-relaxed">{review.body}</p>
-              </div>
-            )
-          })
-        ) : (
-          <div className="text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
-            まだレビューがありません
-          </div>
-        )}
-      </div>
-      {/* 登録商品一覧 */}
-      <h2 className="text-xl font-bold mb-4 mt-8 text-zinc-200">登録商品</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {userItems && userItems.length > 0 ? (
-          userItems.map((userItem: any) => (
-            <Link key={userItem.id} href={`/items/${userItem.items?.id}`} className="block">
-              <div className="bg-black/40 border border-white/10 rounded-2xl p-4 hover:border-amber-500/30 transition-all hover:-translate-y-0.5">
-                <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-white/10 mb-3">
-                  {userItem.items?.image_url ? (
-                    <img src={userItem.items.image_url} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-xl">📦</span>
+              )
+            })
+          ) : (
+            <div className="text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
+              まだレビューがありません
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {userItems && userItems.length > 0 ? (
+            userItems.map((userItem: any) => (
+              <Link key={userItem.id} href={`/items/${userItem.items?.id}`} className="block">
+                <div className="bg-black/40 border border-white/10 rounded-2xl p-4 hover:border-amber-500/30 transition-all hover:-translate-y-0.5">
+                  <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-white/10 mb-3">
+                    {userItem.items?.image_url ? (
+                      <img src={userItem.items.image_url} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xl">📦</span>
+                    )}
+                  </div>
+                  <div className="font-bold text-white text-sm mb-1 line-clamp-2">{userItem.items?.name}</div>
+                  <div className="text-xs text-zinc-500">
+                    {Math.floor((Date.now() - new Date(userItem.purchased_at).getTime()) / (1000 * 60 * 60 * 24))}日愛用中
+                  </div>
+                  {userItem.is_still_using && (
+                    <div className="text-xs text-emerald-400 mt-1">🌿 まだ使ってる！</div>
                   )}
                 </div>
-                <div className="font-bold text-white text-sm mb-1 line-clamp-2">{userItem.items?.name}</div>
-                <div className="text-xs text-zinc-500">
-                  {Math.floor((Date.now() - new Date(userItem.purchased_at).getTime()) / (1000 * 60 * 60 * 24))}日愛用中
-                </div>
-                {userItem.is_still_using && (
-                  <div className="text-xs text-emerald-400 mt-1">🌿 まだ使ってる！</div>
-                )}
-              </div>
-            </Link>
-          ))
-        ) : (
-          <div className="col-span-full text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
-            まだ登録商品がありません
-          </div>
-        )}
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
+              まだ登録商品がありません
+            </div>
+          )}
+        </div>
+      )}
       </div>
-    </div>
   )
 }
