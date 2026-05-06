@@ -48,6 +48,13 @@ export default async function ProfilePage({
     .select('*', { count: 'exact', head: true })
     .eq('follower_id', profile.id)
 
+    // 登録商品取得
+  const { data: userItems } = await supabase
+    .from('user_items')
+    .select('*, items(id, name, genre, image_url, rating_average, rating_count)')
+    .eq('user_id', profile.id)
+    .order('created_at', { ascending: false })
+
   // レビュー取得
   const { data: reviews } = await supabase
     .from('reviews')
@@ -106,6 +113,24 @@ export default async function ProfilePage({
         </div>
       </div>
 
+      {/* タブ */}
+      <div className="flex gap-2 mb-6 border-b border-white/10 pb-4">
+        <Link
+          href={`/profile/${resolvedParams.username}?tab=reviews`}
+          className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+            !resolvedParams || true ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-white/5 text-zinc-400 border border-white/10'
+          }`}
+        >
+          📝 レビュー ({reviews?.length || 0})
+        </Link>
+        <Link
+          href={`/profile/${resolvedParams.username}?tab=items`}
+          className="px-4 py-2 rounded-full text-sm font-bold bg-white/5 text-zinc-400 border border-white/10 hover:bg-white/10 transition-all"
+        >
+          📦 登録商品 ({userItems?.length || 0})
+        </Link>
+      </div>
+
       {/* レビュー一覧 */}
       <h2 className="text-xl font-bold mb-4 text-zinc-200">熟成レビュー</h2>
       <div className="space-y-4">
@@ -142,6 +167,36 @@ export default async function ProfilePage({
         ) : (
           <div className="text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
             まだレビューがありません
+          </div>
+        )}
+      </div>
+      {/* 登録商品一覧 */}
+      <h2 className="text-xl font-bold mb-4 mt-8 text-zinc-200">登録商品</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {userItems && userItems.length > 0 ? (
+          userItems.map((userItem: any) => (
+            <Link key={userItem.id} href={`/items/${userItem.items?.id}`} className="block">
+              <div className="bg-black/40 border border-white/10 rounded-2xl p-4 hover:border-amber-500/30 transition-all hover:-translate-y-0.5">
+                <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-white/10 mb-3">
+                  {userItem.items?.image_url ? (
+                    <img src={userItem.items.image_url} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xl">📦</span>
+                  )}
+                </div>
+                <div className="font-bold text-white text-sm mb-1 line-clamp-2">{userItem.items?.name}</div>
+                <div className="text-xs text-zinc-500">
+                  {Math.floor((Date.now() - new Date(userItem.purchased_at).getTime()) / (1000 * 60 * 60 * 24))}日愛用中
+                </div>
+                {userItem.is_still_using && (
+                  <div className="text-xs text-emerald-400 mt-1">🌿 まだ使ってる！</div>
+                )}
+              </div>
+            </Link>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
+            まだ登録商品がありません
           </div>
         )}
       </div>
