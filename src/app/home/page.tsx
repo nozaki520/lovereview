@@ -77,19 +77,19 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen p-8 max-w-4xl mx-auto">
       <header className="flex justify-between items-center mb-12 border-b border-white/10 pb-6">
-        <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500 flex items-center gap-2">
+        <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
           LoveRevi
         </h1>
-        <div className="flex items-center gap-6">
-          <Link href="/explore" className="text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🔍 探す・登録する</Link>
-          <Link href="/ranking" className="text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🏆 ランキング</Link>
-          <Link href="/settings/profile" className="text-sm font-medium text-zinc-300 flex items-center gap-2 hover:bg-white/5 px-3 py-1.5 rounded-full transition-colors">
+        <div className="flex items-center gap-2 md:gap-6">
+          <Link href="/explore" className="hidden md:block text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🔍 探す・登録する</Link>
+          <Link href="/ranking" className="hidden md:block text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🏆 ランキング</Link>
+          <Link href="/settings/profile" className="flex items-center gap-2 hover:bg-white/5 px-2 py-1.5 rounded-full transition-colors">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} className="w-8 h-8 rounded-full object-cover" />
             ) : (
               <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center border border-white/10">👤</div>
             )}
-            {profile?.display_name || 'ゲストユーザー'}
+            <span className="hidden md:block text-sm font-medium text-zinc-300">{profile?.display_name || 'ゲストユーザー'}</span>
           </Link>
           <NotificationBell initialNotifications={notifications || []} />
           <form action="/auth/signout" method="post">
