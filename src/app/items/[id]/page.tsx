@@ -100,6 +100,8 @@ export default async function ItemDetailPage({
               'gadget': '📱 ガジェット・家電',
               'fashion': '👗 ファッション',
               'food': '🍜 食品',
+              'spiritual': '🔮 占い・スピリチュアル',  // 追加
+              'beauty': '💄 コスメ・美容',            // 追加
               'other': '🎁 その他',
             }
             return (

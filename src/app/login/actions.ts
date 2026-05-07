@@ -58,5 +58,5 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/home')
+  redirect('/home?welcome=1')
 }

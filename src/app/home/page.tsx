@@ -8,8 +8,14 @@ import ShareButton from '@/components/ShareButton'
 import NotificationBell from '@/components/NotificationBell'
 import MobileMenu from '@/components/MobileMenu'
 import LikeButton from '@/components/LikeButton'
+import OnboardingModal from '@/components/OnboardingModal'
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>
+}) {
+  const resolvedSearch = await searchParams
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -77,6 +83,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen p-8 max-w-4xl mx-auto">
+      {resolvedSearch.welcome === '1' && <OnboardingModal />}
       <header className="flex justify-between items-center mb-12 border-b border-white/10 pb-6">
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
           LoveRevi
