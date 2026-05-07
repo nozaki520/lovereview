@@ -210,7 +210,7 @@ export default async function HomePage({
                         />
                         <ShareButton 
                           text={`${event.items?.name}の${stageName}！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー`}
-                          url={`http://lovereview.vercel.app/items/${event.items?.id}`} 
+                          url={`https://lovereview.vercel.app/reviews/${event.target_id}`} 
                         />
                       </div>
                     </div>

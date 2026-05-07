@@ -220,7 +220,7 @@ export default async function ItemDetailPage({
                     </div>
                     <ShareButton 
                       text={`${item.name}の${stageName}を投稿しました！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー\n`}
-                      url={`http://lovereview.vercel.app/items/${item.id}`} 
+                      url={`https://lovereview.vercel.app/reviews/${review.id}`} 
                     />
                   </div>
 
