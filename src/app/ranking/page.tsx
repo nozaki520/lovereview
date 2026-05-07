@@ -15,6 +15,17 @@ const GENRES = [
 
 const RANK_MEDALS = ['🥇', '🥈', '🥉']
 
+const genreLabels: Record<string, string> = {
+  'book': '📚 本・漫画',
+  'game': '🎮 ゲーム',
+  'gadget': '📱 ガジェット・家電',
+  'fashion': '👗 ファッション',
+  'food': '🍜 食品',
+  'spiritual': '🔮 占い・スピリチュアル',
+  'beauty': '💄 コスメ・美容',
+  'other': '🎁 その他',
+}
+
 export default async function RankingPage() {
   const supabase = await createClient()
 
@@ -74,7 +85,7 @@ export default async function RankingPage() {
                 </div>
                 <div className="flex-1">
                   <div className="font-bold text-white">{item.name}</div>
-                  <div className="text-xs text-zinc-500">{item.genre}</div>
+                  <div className="text-xs text-zinc-500">{genreLabels[item.genre] || item.genre}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-amber-400 font-bold">★ {item.rating_average.toFixed(1)}</div>
