@@ -8,8 +8,8 @@ const GENRES = [
   { value: 'gadget', label: '📱 ガジェット・家電' },
   { value: 'fashion', label: '👗 ファッション' },
   { value: 'food', label: '🍜 食品' },
-  { value: 'spiritual', label: '🔮 占い・スピリチュアル' },  // 追加
-  { value: 'beauty', label: '💄 コスメ・美容' },            // 追加
+  { value: 'spiritual', label: '🔮 占い・スピリチュアル' },
+  { value: 'beauty', label: '💄 コスメ・美容' },
   { value: 'other', label: '🎁 その他' },
 ]
 
@@ -52,6 +52,51 @@ export default async function RankingPage() {
     .order('rating_count', { ascending: false })
     .limit(10)
 
+  // 愛用歴ランキング用データ取得
+  const { data: userItems } = await supabase
+    .from('user_items')
+    .select('item_id, purchased_at, is_still_using')
+
+  // 商品ごとに集計
+  const itemStatsMap: Record<string, {
+    totalDays: number
+    count: number
+    stillUsingCount: number
+  }> = {}
+
+  const now = Date.now()
+  userItems?.forEach(ui => {
+    const days = Math.floor((now - new Date(ui.purchased_at).getTime()) / (1000 * 60 * 60 * 24))
+    if (!itemStatsMap[ui.item_id]) {
+      itemStatsMap[ui.item_id] = { totalDays: 0, count: 0, stillUsingCount: 0 }
+    }
+    itemStatsMap[ui.item_id].totalDays += days
+    itemStatsMap[ui.item_id].count += 1
+    if (ui.is_still_using) itemStatsMap[ui.item_id].stillUsingCount += 1
+  })
+
+  // 平均愛用日数でソートしてTop10
+  const sortedItemIds = Object.entries(itemStatsMap)
+    .map(([itemId, stats]) => ({
+      itemId,
+      avgDays: Math.floor(stats.totalDays / stats.count),
+      count: stats.count,
+      stillUsingCount: stats.stillUsingCount,
+    }))
+    .sort((a, b) => b.avgDays - a.avgDays)
+    .slice(0, 10)
+
+  // 商品情報を取得
+  const loveItemIds = sortedItemIds.map(s => s.itemId)
+  const { data: loveItems } = loveItemIds.length > 0
+    ? await supabase.from('items').select('*').in('id', loveItemIds)
+    : { data: [] }
+
+  const loveRanking = sortedItemIds.map(s => ({
+    ...s,
+    item: loveItems?.find(i => i.id === s.itemId),
+  })).filter(s => s.item)
+
   return (
     <div className="min-h-screen p-8 max-w-5xl mx-auto">
       <header className="flex items-center gap-4 mb-12">
@@ -63,6 +108,46 @@ export default async function RankingPage() {
           ランキング
         </h1>
       </header>
+
+      {/* 愛用歴ランキング */}
+      <section className="mb-16">
+        <h2 className="text-xl font-bold mb-2 text-zinc-200 border-b border-white/10 pb-3">
+          ❤️ 愛用歴ランキング（平均愛用日数順）
+        </h2>
+        <p className="text-xs text-zinc-500 mb-6">登録ユーザーの平均愛用日数が長い商品ランキング</p>
+        <div className="space-y-3">
+          {loveRanking.length > 0 ? loveRanking.map((entry, index) => (
+            <Link key={entry.itemId} href={`/items/${entry.itemId}`} className="block">
+              <div className="bg-black/40 border border-white/10 rounded-2xl p-4 flex items-center gap-4 hover:border-amber-500/30 transition-all hover:-translate-y-0.5">
+                <div className="text-2xl w-10 text-center">
+                  {RANK_MEDALS[index] || `${index + 1}`}
+                </div>
+                <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-white/10">
+                  {entry.item?.image_url ? (
+                    <img src={entry.item.image_url} alt={entry.item.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xl">📦</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="font-bold text-white">{entry.item?.name}</div>
+                  <div className="text-xs text-zinc-500">{genreLabels[entry.item?.genre] || entry.item?.genre}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-amber-400 font-bold">{entry.avgDays}日</div>
+                  <div className="text-xs text-zinc-500">
+                    {entry.stillUsingCount}/{entry.count}人がまだ使ってる
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )) : (
+            <div className="text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
+              まだデータがありません
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* 総合ランキング */}
       <section className="mb-16">
