@@ -9,6 +9,8 @@ const GENRES = [
   { value: 'gadget', label: '📱 ガジェット・家電' },
   { value: 'fashion', label: '👗 ファッション' },
   { value: 'food', label: '🍜 食品' },
+  { value: 'spiritual', label: '🔮 占い・スピリチュアル' },  // 追加
+  { value: 'beauty', label: '💄 コスメ・美容' },            // 追加
   { value: 'other', label: '🎁 その他' },
 ]
 
