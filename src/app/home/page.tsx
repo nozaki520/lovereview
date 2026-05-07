@@ -122,6 +122,18 @@ export default async function HomePage() {
                 'year1': '1年後レビュー',
                 'beyond': '長期レビュー'
               }
+
+              // ここに追加
+              const genreLabels: Record<string, string> = {
+                'book': '📚 本・漫画',
+                'game': '🎮 ゲーム',
+                'gadget': '📱 ガジェット・家電',
+                'fashion': '👗 ファッション',
+                'food': '🍜 食品',
+                'spiritual': '🔮 占い・スピリチュアル',
+                'beauty': '💄 コスメ・美容',
+                'other': '🎁 その他',
+              }
               const stageName = review?.stage ? stageLabels[review.stage] || review.stage : '';
 
               return (
@@ -164,7 +176,7 @@ export default async function HomePage() {
                         )}
                       </div>
                       <div>
-                        <div className="text-xs text-zinc-500 mb-1">{event.items?.genre}</div>
+                        <div className="text-xs text-zinc-500 mb-1">{genreLabels[event.items?.genre] || event.items?.genre}</div>
                         <div className="font-bold text-white mb-1">{event.items?.name}</div>
                         {review && (
                           <div className="flex items-center gap-1 text-amber-500 text-sm">

@@ -93,12 +93,14 @@ export default function NewItemPage() {
               id="genre" name="genre" required
               className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-white appearance-none font-medium"
             >
-              <option value="gadget">ガジェット・家電</option>
-              <option value="book">本・漫画</option>
-              <option value="game">ゲーム</option>
-              <option value="fashion">ファッション・コスメ</option>
-              <option value="food">食品</option>
-              <option value="other">その他サービス・体験</option>
+              <option value="gadget">📱 ガジェット・家電</option>
+              <option value="book">📚 本・漫画</option>
+              <option value="game">🎮 ゲーム</option>
+              <option value="fashion">👗 ファッション</option>
+              <option value="food">🍜 食品</option>
+              <option value="spiritual">🔮 占い・スピリチュアル</option>
+              <option value="beauty">💄 コスメ・美容</option>
+              <option value="other">🎁 その他</option>
             </select>
           </div>
 
