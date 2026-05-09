@@ -10,6 +10,7 @@ import MobileMenu from '@/components/MobileMenu'
 import LikeButton from '@/components/LikeButton'
 import OnboardingModal from '@/components/OnboardingModal'
 import RecapModal from '@/components/RecapModal'
+import FadeInCard from '@/components/FadeInCard'
 
 export default async function HomePage({
   searchParams,
@@ -162,7 +163,7 @@ export default async function HomePage({
 
         <div className="space-y-6">
           {eventsWithReviews && eventsWithReviews.length > 0 ? (
-            eventsWithReviews.map((event: any) => {
+            eventsWithReviews.map((event: any, index: number) => {
               const review = event.review;
 
               const stageLabels: Record<string, string> = {
@@ -189,7 +190,8 @@ export default async function HomePage({
               const stageName = review?.stage ? stageLabels[review.stage] || review.stage : '';
 
               return (
-                <div key={event.id} className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-lg hover:border-amber-500/30 transition-colors">
+                <FadeInCard key={event.id} delay={index * 80}>
+                <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-lg hover:border-amber-500/30 transition-colors">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <Link href={`/profile/${event.users?.username}`} className="w-10 h-10 bg-white/10 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-amber-400 transition-all">
@@ -261,6 +263,7 @@ export default async function HomePage({
                     </div>
                   )}
                 </div>
+              </FadeInCard>
               )
             })
           ) : (
