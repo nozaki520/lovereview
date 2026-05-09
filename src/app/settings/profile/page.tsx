@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
-import { ArrowLeft, UserCircle, CheckCircle2, Upload } from 'lucide-react'
+import { ArrowLeft, UserCircle, CheckCircle2, Upload, AlertTriangle } from 'lucide-react'
 import { updateProfile } from './actions'
+import DeleteAccountButton from './DeleteAccountButton'
 
 export default async function ProfileSettingsPage({
   searchParams
@@ -96,6 +97,17 @@ export default async function ProfileSettingsPage({
             変更を保存する
           </button>
         </form>
+
+        <div className="mt-8 pt-6 border-t border-red-500/10">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="w-4 h-4 text-red-400" />
+            <span className="text-sm font-bold text-red-400">危険な操作</span>
+          </div>
+          <p className="text-xs text-zinc-500 mb-4">
+            退会すると元に戻せません。レビューは「退会済みユーザー」として残ります。
+          </p>
+          <DeleteAccountButton />
+        </div>
       </div>
     </div>
   )

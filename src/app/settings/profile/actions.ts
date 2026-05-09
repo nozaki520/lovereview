@@ -50,3 +50,28 @@ export async function updateProfile(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect(`/settings/profile?message=${encodeURIComponent('プロフィールを更新しました')}`)
 }
+
+export async function deleteAccount() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error: anonymizeError } = await supabase
+    .from('users')
+    .update({
+      display_name: '退会済みユーザー',
+      username: `deleted_${user.id.slice(0, 8)}`,
+      avatar_url: null,
+      bio: null,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', user.id)
+
+  if (anonymizeError) {
+    console.error('Anonymize error:', anonymizeError)
+    throw new Error('退会処理に失敗しました')
+  }
+
+  await supabase.auth.signOut()
+  redirect('/')
+}
