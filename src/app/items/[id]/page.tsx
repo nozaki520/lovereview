@@ -7,6 +7,7 @@ import ShareButton from '@/components/ShareButton'
 import StillUsingButton from '@/components/StillUsingButton'
 import DeleteReviewButton from '@/components/DeleteReviewButton'
 import EditReviewButton from '@/components/EditReviewButton'
+import WatchlistButton from '@/components/WatchlistButton'
 
 export default async function ItemDetailPage({
   params
@@ -68,6 +69,16 @@ export default async function ItemDetailPage({
     .select('*', { count: 'exact', head: true })
     .eq('item_id', item.id)
     .in('stage', ['month6', 'year1', 'beyond'])
+
+  // ウォッチリスト状態確認
+  const { data: watchlistData } = user ? await supabase
+    .from('watchlist')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('item_id', item.id)
+    .single() : { data: null }
+
+  const isWatching = !!watchlistData
 
   const userItemIds = userItems?.map(u => u.id) || []
   const { count: todayUsingCount } = userItemIds.length > 0 ? await supabase
@@ -174,6 +185,16 @@ export default async function ItemDetailPage({
             itemName={item.name}
             daysElapsed={daysElapsed}
             initialPressed={alreadyPressedToday}
+          />
+        </div>
+      )}
+
+      {user && (
+        <div className="mt-4">
+          <WatchlistButton
+            itemId={item.id}
+            userId={user.id}
+            initialWatching={isWatching}
           />
         </div>
       )}
