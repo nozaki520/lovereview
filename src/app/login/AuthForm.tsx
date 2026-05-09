@@ -80,7 +80,7 @@ export default function AuthForm({ message }: { message?: string }) {
                 value={displayName}
                 onChange={e => setDisplayName(e.target.value)}
                 className={`w-full px-4 py-3 bg-black/40 border rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-white placeholder:text-zinc-600 font-medium ${errors.displayName ? 'border-red-500/50' : 'border-white/10'}`}
-                placeholder="例：ぐるん（アルファベット・数字・日本語OK・30文字以内）"
+                placeholder="アルファベット・数字・日本語OK・30文字以内"
               />
               {errors.displayName && <p className="text-red-400 text-xs ml-1">{errors.displayName}</p>}
             </div>
