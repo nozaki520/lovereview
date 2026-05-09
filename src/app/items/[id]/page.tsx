@@ -15,13 +15,13 @@ export default async function ItemDetailPage({
 }) {
   const resolvedParams = await params
   const supabase = await createClient()
-  
+
   // Fetch item details
   const { data: item } = await supabase.from('items').select('*').eq('id', resolvedParams.id).single()
 
   if (!item) return <div>商品が見つかりません</div>
 
-// ログインユーザー取得
+  // ログインユーザー取得
   const { data: { user } } = await supabase.auth.getUser()
 
   // ユーザーがこの商品を登録済みか確認
@@ -50,17 +50,17 @@ export default async function ItemDetailPage({
   // 愛用スコアデータ取得
   const { data: userItems } = await supabase
     .from('user_items')
-    .select('purchased_at, is_still_using')
+    .select('id, purchased_at, is_still_using')  // idを追加
     .eq('item_id', item.id)
 
   const totalUsers = userItems?.length || 0
   const stillUsingUsers = userItems?.filter(u => u.is_still_using).length || 0
   const avgDays = totalUsers > 0
     ? Math.floor(
-        userItems!.reduce((acc, u) => {
-          return acc + Math.floor((Date.now() - new Date(u.purchased_at).getTime()) / (1000 * 60 * 60 * 24))
-        }, 0) / totalUsers
-      )
+      userItems!.reduce((acc, u) => {
+        return acc + Math.floor((Date.now() - new Date(u.purchased_at).getTime()) / (1000 * 60 * 60 * 24))
+      }, 0) / totalUsers
+    )
     : 0
 
   const { count: longTermCount } = await supabase
@@ -68,6 +68,13 @@ export default async function ItemDetailPage({
     .select('*', { count: 'exact', head: true })
     .eq('item_id', item.id)
     .in('stage', ['month6', 'year1', 'beyond'])
+
+  const userItemIds = userItems?.map(u => u.id) || []
+  const { count: todayUsingCount } = userItemIds.length > 0 ? await supabase
+    .from('still_using_logs')
+    .select('*', { count: 'exact', head: true })
+    .gte('logged_at', today.toISOString())
+    .in('user_item_id', userItemIds) : { count: 0 }
 
   // Fetch reviews with user info
   const { data: reviews } = await supabase
@@ -82,7 +89,7 @@ export default async function ItemDetailPage({
         <ArrowLeft className="w-4 h-4" />
         探す画面へ戻る
       </Link>
-      
+
       {/* Item Header */}
       <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 mb-12 flex flex-col md:flex-row gap-8 shadow-2xl">
         <div className="w-40 h-40 bg-white/5 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden border border-white/10 shadow-inner">
@@ -119,7 +126,7 @@ export default async function ItemDetailPage({
           <p className="text-zinc-400 text-sm whitespace-pre-wrap leading-relaxed">{item.description || "説明はありません。"}</p>
           {/* 愛用スコア */}
           {totalUsers > 0 && (
-            <div className="mt-6 grid grid-cols-3 gap-3">
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
                 <div className="text-2xl font-bold text-amber-400">{avgDays}</div>
                 <div className="text-xs text-zinc-500 mt-1">平均愛用日数</div>
@@ -127,6 +134,10 @@ export default async function ItemDetailPage({
               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
                 <div className="text-2xl font-bold text-emerald-400">{stillUsingUsers}</div>
                 <div className="text-xs text-zinc-500 mt-1">まだ使ってる！人数</div>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
+                <div className="text-2xl font-bold text-pink-400">{todayUsingCount || 0}</div>
+                <div className="text-xs text-zinc-500 mt-1">今日も使ってる！</div>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
                 <div className="text-2xl font-bold text-blue-400">{longTermCount || 0}</div>
@@ -148,7 +159,7 @@ export default async function ItemDetailPage({
         <p className="text-zinc-400 text-sm mb-8 font-medium max-w-md mx-auto">
           購入日を登録して、時間経過とともに変化するリアルなレビューを共有しましょう。
         </p>
-        <Link 
+        <Link
           href={`/items/${item.id}/register`}
           className="inline-block px-8 py-4 bg-amber-500 text-black font-bold rounded-full shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:scale-105 transition-all active:scale-95"
         >
@@ -156,16 +167,16 @@ export default async function ItemDetailPage({
         </Link>
       </div>
 
-        {userItem && (
-          <div className="mt-6">
-            <StillUsingButton
-              userItemId={userItem.id}
-              itemName={item.name}
-              daysElapsed={daysElapsed}
-              initialPressed={alreadyPressedToday}
-            />
-          </div>
-        )}
+      {userItem && (
+        <div className="mt-6">
+          <StillUsingButton
+            userItemId={userItem.id}
+            itemName={item.name}
+            daysElapsed={daysElapsed}
+            initialPressed={alreadyPressedToday}
+          />
+        </div>
+      )}
 
       {/* Reviews Section */}
       <div>
@@ -213,14 +224,14 @@ export default async function ItemDetailPage({
                       <div className="text-xs text-zinc-400 font-medium">使用開始から {review.days_elapsed} 日目</div>
                     </div>
                   </div>
-                  
+
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-1 text-amber-500 text-sm">
                       {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
                     </div>
-                    <ShareButton 
+                    <ShareButton
                       text={`${item.name}の${stageName}を投稿しました！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー\n`}
-                      url={`https://lovereview.vercel.app/reviews/${review.id}`} 
+                      url={`https://lovereview.vercel.app/reviews/${review.id}`}
                     />
                   </div>
 
@@ -249,7 +260,7 @@ export default async function ItemDetailPage({
           </div>
         ) : (
           <div className="text-center py-20 text-zinc-500 bg-white/5 rounded-3xl border border-white/5">
-            まだレビューがありません。<br/>一番最初のレビューを書いてみませんか？
+            まだレビューがありません。<br />一番最初のレビューを書いてみませんか？
           </div>
         )}
       </div>
