@@ -8,6 +8,7 @@ import StillUsingButton from '@/components/StillUsingButton'
 import DeleteReviewButton from '@/components/DeleteReviewButton'
 import EditReviewButton from '@/components/EditReviewButton'
 import ReviewComments from '@/components/ReviewComments'
+import RatingGraph from '@/components/RatingGraph'
 import WatchlistButton from '@/components/WatchlistButton'
 
 export default async function ItemDetailPage({
@@ -206,6 +207,8 @@ export default async function ItemDetailPage({
           <MessageSquareQuote className="text-amber-400 w-6 h-6" />
           熟成レビュー
         </h2>
+
+        <RatingGraph reviews={reviews?.map(r => ({ stage: r.stage, rating: r.rating })) || []} />
 
         {reviews && reviews.length > 0 ? (
           <div className="space-y-6">
