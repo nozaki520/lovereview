@@ -33,11 +33,11 @@ export default function RatingGraph({ reviews }: { reviews: Review[] }) {
     const innerWidth = width - paddingX * 2
     const innerHeight = height - paddingY * 2
 
-    const xStep = innerWidth / (plotted.length - 1)
+    const xStep = plotted.length > 1 ? innerWidth / (plotted.length - 1) : 0
     const yScale = (rating: number) => paddingY + innerHeight - ((rating - 1) / 4) * innerHeight
 
     const points = plotted.map((p, i) => ({
-        x: paddingX + i * xStep,
+        x: plotted.length === 1 ? paddingX + innerWidth / 2 : paddingX + i * xStep,
         y: yScale(p.rating),
         ...p,
     }))

@@ -17,7 +17,7 @@ export async function login(formData: FormData) {
 
   if (error) {
     console.error('Login error:', error.message)
-    redirect(`/login?message=${encodeURIComponent('ログイン失敗: ' + error.message)}`)
+    redirect(`/login?message=${encodeURIComponent('メールアドレスまたはパスワードが正しくありません')}`)
   }
 
   revalidatePath('/', 'layout')

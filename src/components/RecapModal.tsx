@@ -30,7 +30,8 @@ export default function RecapModal({ displayName, topReview, topItem, longestIte
 
   useEffect(() => {
     const shown = localStorage.getItem(storageKey)
-    if (!shown) setVisible(true)
+    const isNewUser = new Date().getTime() - new Date().setHours(0,0,0,0) < 1000 * 60 * 5
+    if (!shown && !isNewUser) setVisible(true)
   }, [])
 
   const close = () => {
