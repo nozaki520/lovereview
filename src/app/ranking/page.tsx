@@ -140,10 +140,10 @@ export default async function RankingPage() {
                     {entry.stillUsingCount}/{entry.count}人がまだ使ってる
                   </div>
                   <div onClick={e => e.preventDefault()}>
-                  <ShareButton
-                    text={`【LoveRevi 愛用歴ランキング】\n${index + 1}位 ${entry.item?.name}\n平均愛用日数：${entry.avgDays}日\n${entry.stillUsingCount}/${entry.count}人がまだ使ってる！\n#LoveRevi #熟成レビュー`}
-                    url={`https://lovereview.vercel.app/items/${entry.itemId}`}
-                  />
+                    <ShareButton
+                      text={`【LoveRevi 愛用歴ランキング】\n${index + 1}位 ${entry.item?.name}\n平均愛用日数：${entry.avgDays}日\n${entry.stillUsingCount}/${entry.count}人がまだ使ってる！\n#LoveRevi #熟成レビュー`}
+                      url={`https://lovereview.vercel.app/items/${entry.itemId}`}
+                    />
                   </div>
                 </div>
               </div>
@@ -183,10 +183,10 @@ export default async function RankingPage() {
                   <div className="text-amber-400 font-bold">★ {item.rating_average.toFixed(1)}</div>
                   <div className="text-xs text-zinc-500">{item.rating_count}件のレビュー</div>
                   <div onClick={e => e.preventDefault()}>
-                  <ShareButton
-                    text={`【LoveRevi 総合ランキング】\n${index + 1}位 ${item.name}\n評価：★${item.rating_average.toFixed(1)}（${item.rating_count}件）\n#LoveRevi #熟成レビュー`}
-                    url={`https://lovereview.vercel.app/items/${item.id}`}
-                  />
+                    <ShareButton
+                      text={`【LoveRevi 総合ランキング】\n${index + 1}位 ${item.name}\n評価：★${item.rating_average.toFixed(1)}（${item.rating_count}件）\n#LoveRevi #熟成レビュー`}
+                      url={`https://lovereview.vercel.app/items/${item.id}`}
+                    />
                   </div>
                 </div>
               </div>
