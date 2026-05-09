@@ -56,6 +56,7 @@ export async function deleteAccount() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
 
+  // 1. usersテーブルを匿名化
   const { error: anonymizeError } = await supabase
     .from('users')
     .update({
@@ -67,11 +68,17 @@ export async function deleteAccount() {
     })
     .eq('id', user.id)
 
-  if (anonymizeError) {
-    console.error('Anonymize error:', anonymizeError)
-    throw new Error('退会処理に失敗しました')
-  }
+  if (anonymizeError) throw new Error('退会処理に失敗しました')
 
-  await supabase.auth.signOut()
+  // 2. Auth側のアカウントを物理削除
+  const { createClient: createSupabaseClient } = await import('@supabase/supabase-js')
+  const adminSupabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  const { error: deleteAuthError } = await adminSupabase.auth.admin.deleteUser(user.id)
+
+  if (deleteAuthError) throw new Error('退会処理に失敗しました')
+
   redirect('/')
 }
