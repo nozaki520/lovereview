@@ -61,6 +61,12 @@ export default async function ProfilePage({
     .order('published_at', { ascending: false })
     .limit(10)
 
+  const { data: watchlist } = await supabase
+    .from('watchlist')
+    .select('*, items(id, name, genre, image_url, rating_average, rating_count)')
+    .eq('user_id', profile.id)
+    .order('created_at', { ascending: false })
+
   const BADGES = [
     { days: 2000, emoji: '👑', label: '2000日', color: 'text-yellow-300' },
     { days: 1000, emoji: '💎', label: '1000日', color: 'text-blue-300' },
@@ -160,6 +166,15 @@ export default async function ProfilePage({
         >
           📦 登録商品 ({userItems?.length || 0})
         </Link>
+        <Link
+          href={`/profile/${resolvedParams.username}?tab=watchlist`}
+          className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${activeTab === 'watchlist'
+            ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+            : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
+            }`}
+        >
+          👀 ウォッチリスト ({watchlist?.length || 0})
+        </Link>
       </div>
 
       {/* コンテンツ */}
@@ -201,7 +216,7 @@ export default async function ProfilePage({
             </div>
           )}
         </div>
-      ) : (
+      ) : activeTab === 'items' ? (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {userItems && userItems.length > 0 ? (
             userItems.map((userItem: any) => (
@@ -227,6 +242,30 @@ export default async function ProfilePage({
           ) : (
             <div className="col-span-full text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
               まだ登録商品がありません
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {watchlist && watchlist.length > 0 ? (
+            watchlist.map((w: any) => (
+              <Link key={w.id} href={`/items/${w.items?.id}`} className="block">
+                <div className="bg-black/40 border border-white/10 rounded-2xl p-4 hover:border-amber-500/30 transition-all hover:-translate-y-0.5">
+                  <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-white/10 mb-3">
+                    {w.items?.image_url ? (
+                      <img src={w.items.image_url} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xl">📦</span>
+                    )}
+                  </div>
+                  <div className="font-bold text-white text-sm mb-1 line-clamp-2">{w.items?.name}</div>
+                  <div className="text-amber-500 text-xs">★ {w.items?.rating_average?.toFixed(1)}</div>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
+              まだウォッチリストに追加した商品がありません
             </div>
           )}
         </div>
