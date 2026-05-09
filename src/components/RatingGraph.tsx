@@ -28,7 +28,7 @@ export default function RatingGraph({ reviews }: { reviews: Review[] }) {
 
     const width = 500
     const height = 160
-    const paddingX = 60
+    const paddingX = 52
     const paddingY = 20
     const innerWidth = width - paddingX * 2
     const innerHeight = height - paddingY * 2
