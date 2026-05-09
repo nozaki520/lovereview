@@ -7,6 +7,7 @@ import ShareButton from '@/components/ShareButton'
 import StillUsingButton from '@/components/StillUsingButton'
 import DeleteReviewButton from '@/components/DeleteReviewButton'
 import EditReviewButton from '@/components/EditReviewButton'
+import ReviewComments from '@/components/ReviewComments'
 import WatchlistButton from '@/components/WatchlistButton'
 
 export default async function ItemDetailPage({
@@ -90,7 +91,7 @@ export default async function ItemDetailPage({
   // Fetch reviews with user info
   const { data: reviews } = await supabase
     .from('reviews')
-    .select('*, users(display_name, avatar_url)')
+    .select('*, users(display_name, avatar_url), review_comments(id, body, created_at, user_id, users(display_name, avatar_url, username))')
     .eq('item_id', item.id)
     .order('published_at', { ascending: false })
 
@@ -272,6 +273,11 @@ export default async function ItemDetailPage({
                         userId={review.user_id}
                         currentUserId={user.id}
                         itemId={item.id}
+                      />
+                      <ReviewComments
+                        reviewId={review.id}
+                        initialComments={review.review_comments || []}
+                        currentUserId={user?.id || null}
                       />
                     </div>
                   )}
