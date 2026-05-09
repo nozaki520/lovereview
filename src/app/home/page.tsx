@@ -114,7 +114,7 @@ export default async function HomePage({
   return (
     <div className="min-h-screen p-8 max-w-4xl mx-auto">
       {resolvedSearch.welcome === '1' && <OnboardingModal />}
-      {isDecember && (
+      {isDecember && resolvedSearch.welcome !== '1' && (
         <RecapModal
           displayName={profile?.display_name || 'ゲスト'}
           topReview={recapReviews?.[0] ? {
