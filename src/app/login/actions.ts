@@ -30,6 +30,7 @@ export async function signup(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const usernameInput = formData.get('username') as string
+  const displayNameInput = formData.get('display_name') as string
   
   // Extract username from form or fallback to email prefix
   const username = usernameInput ? usernameInput.trim() : email.split('@')[0] + '_' + Math.floor(Math.random() * 10000)
@@ -49,8 +50,8 @@ export async function signup(formData: FormData) {
     const { error: profileError } = await supabase.from('users').insert({
       id: data.user.id,
       username: username,
-      display_name: username
-    })
+      display_name: displayNameInput?.trim() || username
+   })
     
     if (profileError) {
       console.error('Profile creation failed:', profileError)
