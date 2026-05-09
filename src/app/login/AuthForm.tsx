@@ -65,7 +65,6 @@ export default function AuthForm({ message }: { message?: string }) {
                 placeholder="例：love_revi_123（英数字・_のみ）"
               />
               {errors.userId && <p className="text-red-400 text-xs ml-1">{errors.userId}</p>}
-              <p className="text-zinc-600 text-xs ml-1">プロフィールURLに使用されます</p>
             </div>
 
             {/* 表示名 */}
