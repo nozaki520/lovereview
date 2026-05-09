@@ -18,11 +18,9 @@ export default async function ProfilePage({
   const activeTab = resolvedSearchParams.tab || 'reviews'
   const supabase = await createClient()
 
-  // ログインユーザー取得
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // プロフィールユーザー取得
   const { data: profile } = await supabase
     .from('users')
     .select('*')
@@ -31,7 +29,6 @@ export default async function ProfilePage({
 
   if (!profile) return <div className="p-8 text-zinc-400">ユーザーが見つかりません</div>
 
-  // フォロー状態確認
   const { data: followData } = await supabase
     .from('follows')
     .select('follower_id')
@@ -41,7 +38,6 @@ export default async function ProfilePage({
 
   const isFollowing = !!followData
 
-  // フォロワー数・フォロー数取得
   const { count: followerCount } = await supabase
     .from('follows')
     .select('*', { count: 'exact', head: true })
@@ -52,14 +48,12 @@ export default async function ProfilePage({
     .select('*', { count: 'exact', head: true })
     .eq('follower_id', profile.id)
 
-  // 登録商品取得
   const { data: userItems } = await supabase
     .from('user_items')
     .select('*, items(id, name, genre, image_url, rating_average, rating_count)')
     .eq('user_id', profile.id)
     .order('created_at', { ascending: false })
 
-  // レビュー取得
   const { data: reviews } = await supabase
     .from('reviews')
     .select('*, items(name, genre)')
@@ -67,7 +61,6 @@ export default async function ProfilePage({
     .order('published_at', { ascending: false })
     .limit(10)
 
-  // 愛用日数バッジ計算
   const BADGES = [
     { days: 2000, emoji: '👑', label: '2000日', color: 'text-yellow-300' },
     { days: 1000, emoji: '💎', label: '1000日', color: 'text-blue-300' },
@@ -130,30 +123,30 @@ export default async function ProfilePage({
             <div className="text-xs text-zinc-500">レビュー数</div>
           </div>
         </div>
-      </div>
 
-      {/* 愛用日数バッジ */}
-      {earnedBadges.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/10">
-          {earnedBadges.map(badge => (
-            <div
-              key={badge.days}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full"
-            >
-              <span className="text-base">{badge.emoji}</span>
-              <span className={`text-xs font-bold ${badge.color}`}>{badge.label}愛用</span>
-            </div>
-          ))}
-        </div>
-      )}
+        {/* 愛用日数バッジ */}
+        {earnedBadges.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/10">
+            {earnedBadges.map(badge => (
+              <div
+                key={badge.days}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full"
+              >
+                <span className="text-base">{badge.emoji}</span>
+                <span className={`text-xs font-bold ${badge.color}`}>{badge.label}愛用</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* タブ */}
       <div className="flex gap-2 mb-6 border-b border-white/10 pb-4">
         <Link
           href={`/profile/${resolvedParams.username}?tab=reviews`}
           className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${activeTab === 'reviews'
-              ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-              : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
+            ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+            : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
             }`}
         >
           📝 レビュー ({reviews?.length || 0})
@@ -161,8 +154,8 @@ export default async function ProfilePage({
         <Link
           href={`/profile/${resolvedParams.username}?tab=items`}
           className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${activeTab === 'items'
-              ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-              : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
+            ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+            : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
             }`}
         >
           📦 登録商品 ({userItems?.length || 0})
