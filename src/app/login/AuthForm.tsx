@@ -80,7 +80,7 @@ export default function AuthForm({ message }: { message?: string }) {
                 value={displayName}
                 onChange={e => setDisplayName(e.target.value)}
                 className={`w-full px-4 py-3 bg-black/40 border rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-white placeholder:text-zinc-600 font-medium ${errors.displayName ? 'border-red-500/50' : 'border-white/10'}`}
-                placeholder="例：ぐるん（日本語OK・30文字以内）"
+                placeholder="例：ぐるん（アルファベット・数字・日本語OK・30文字以内）"
               />
               {errors.displayName && <p className="text-red-400 text-xs ml-1">{errors.displayName}</p>}
             </div>
@@ -89,7 +89,7 @@ export default function AuthForm({ message }: { message?: string }) {
 
         {/* メールアドレス */}
         <div className="space-y-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-zinc-300 ml-1">メールアドレス</label>
+          <label htmlFor="email" className="text-sm font-medium text-zinc-300 ml-1">メールアドレス <span className="text-red-400">*</span></label>
           <input
             id="email"
             name="email"
@@ -102,7 +102,7 @@ export default function AuthForm({ message }: { message?: string }) {
 
         {/* パスワード */}
         <div className="space-y-1.5">
-          <label htmlFor="password" className="text-sm font-medium text-zinc-300 ml-1">パスワード</label>
+          <label htmlFor="password" className="text-sm font-medium text-zinc-300 ml-1">パスワード <span className="text-red-400">*</span></label>
           <input
             id="password"
             name="password"
