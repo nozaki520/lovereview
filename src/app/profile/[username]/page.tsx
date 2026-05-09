@@ -52,7 +52,7 @@ export default async function ProfilePage({
     .select('*', { count: 'exact', head: true })
     .eq('follower_id', profile.id)
 
-    // 登録商品取得
+  // 登録商品取得
   const { data: userItems } = await supabase
     .from('user_items')
     .select('*, items(id, name, genre, image_url, rating_average, rating_count)')
@@ -66,6 +66,21 @@ export default async function ProfilePage({
     .eq('user_id', profile.id)
     .order('published_at', { ascending: false })
     .limit(10)
+
+  // 愛用日数バッジ計算
+  const BADGES = [
+    { days: 2000, emoji: '👑', label: '2000日', color: 'text-yellow-300' },
+    { days: 1000, emoji: '💎', label: '1000日', color: 'text-blue-300' },
+    { days: 365, emoji: '🌳', label: '365日', color: 'text-emerald-400' },
+    { days: 100, emoji: '🌿', label: '100日', color: 'text-green-400' },
+    { days: 30, emoji: '🌱', label: '30日', color: 'text-lime-400' },
+  ]
+
+  const earnedBadges = BADGES.filter(badge =>
+    userItems?.some(ui =>
+      Math.floor((Date.now() - new Date(ui.purchased_at).getTime()) / (1000 * 60 * 60 * 24)) >= badge.days
+    )
+  )
 
   return (
     <div className="min-h-screen p-8 max-w-4xl mx-auto">
@@ -117,25 +132,38 @@ export default async function ProfilePage({
         </div>
       </div>
 
+      {/* 愛用日数バッジ */}
+      {earnedBadges.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/10">
+          {earnedBadges.map(badge => (
+            <div
+              key={badge.days}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full"
+            >
+              <span className="text-base">{badge.emoji}</span>
+              <span className={`text-xs font-bold ${badge.color}`}>{badge.label}愛用</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* タブ */}
       <div className="flex gap-2 mb-6 border-b border-white/10 pb-4">
         <Link
           href={`/profile/${resolvedParams.username}?tab=reviews`}
-          className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
-            activeTab === 'reviews'
+          className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${activeTab === 'reviews'
               ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
               : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
-          }`}
+            }`}
         >
           📝 レビュー ({reviews?.length || 0})
         </Link>
         <Link
           href={`/profile/${resolvedParams.username}?tab=items`}
-          className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
-            activeTab === 'items'
+          className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${activeTab === 'items'
               ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
               : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
-          }`}
+            }`}
         >
           📦 登録商品 ({userItems?.length || 0})
         </Link>
@@ -210,6 +238,6 @@ export default async function ProfilePage({
           )}
         </div>
       )}
-      </div>
+    </div>
   )
 }
