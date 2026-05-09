@@ -133,7 +133,7 @@ export default async function HomePage({
         <div className="flex items-center gap-2 md:gap-6">
           <Link href="/explore" className="hidden md:block text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🔍 探す・登録する</Link>
           <Link href="/ranking" className="hidden md:block text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🏆 ランキング</Link>
-          {(new Date().getMonth() === 11 || new Date().getMonth() === 4) && (
+          {(new Date().getMonth() === 11) && (
             <Link href="/recap" className="hidden md:block text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">📊 まとめ</Link>
           )}
           <Link href="/settings/profile" className="flex items-center gap-2 hover:bg-white/5 px-2 py-1.5 rounded-full transition-colors">
