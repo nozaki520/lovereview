@@ -9,6 +9,7 @@ import NotificationBell from '@/components/NotificationBell'
 import MobileMenu from '@/components/MobileMenu'
 import LikeButton from '@/components/LikeButton'
 import OnboardingModal from '@/components/OnboardingModal'
+import RecapModal from '@/components/RecapModal'
 
 export default async function HomePage({
   searchParams,
@@ -31,7 +32,7 @@ export default async function HomePage({
     .eq('id', user.id)
     .single()
 
-    // 通知取得
+  // 通知取得
   const { data: notifications } = await supabase
     .from('notifications')
     .select('*')
@@ -57,7 +58,7 @@ export default async function HomePage({
     reviews = data || []
   }
 
-// Fetch likes for reviews
+  // Fetch likes for reviews
   const likesCounts: Record<string, number> = {}
   const userLikes: Record<string, boolean> = {}
   if (reviewIds.length > 0) {
@@ -65,7 +66,7 @@ export default async function HomePage({
       .from('likes')
       .select('review_id, user_id')
       .in('review_id', reviewIds)
-    
+
     likesData?.forEach(like => {
       likesCounts[like.review_id] = (likesCounts[like.review_id] || 0) + 1
       if (like.user_id === user.id) {
@@ -81,9 +82,49 @@ export default async function HomePage({
     return event
   })
 
+  // 12月限定まとめモーダル用データ
+  const isDecember = new Date().getMonth() === 11 || new Date().getMonth() === 4 // テスト用に5月も含む
+
+  const { data: recapReviews } = isDecember ? await supabase
+    .from('reviews')
+    .select('*, items(name)')
+    .eq('user_id', user.id)
+    .order('published_at', { ascending: false })
+    .limit(1) : { data: null }
+
+  const { data: recapItems } = isDecember ? await supabase
+    .from('user_items')
+    .select('*, items(id, name)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1) : { data: null }
+
+  const { data: recapAllItems } = isDecember ? await supabase
+    .from('user_items')
+    .select('*, items(id, name)')
+    .eq('user_id', user.id) : { data: null }
+
+  const recapLongest = recapAllItems
+    ?.map(ui => ({
+      name: (ui.items as any)?.name,
+      days: Math.floor((Date.now() - new Date(ui.purchased_at).getTime()) / (1000 * 60 * 60 * 24))
+    }))
+    .sort((a, b) => b.days - a.days)[0] || null
+
   return (
     <div className="min-h-screen p-8 max-w-4xl mx-auto">
       {resolvedSearch.welcome === '1' && <OnboardingModal />}
+      {isDecember && (
+        <RecapModal
+          displayName={profile?.display_name || 'ゲスト'}
+          topReview={recapReviews?.[0] ? {
+            itemName: (recapReviews[0].items as any)?.name,
+            stage: recapReviews[0].stage,
+          } : null}
+          topItem={recapItems?.[0] ? { name: (recapItems[0].items as any)?.name } : null}
+          longestItem={recapLongest}
+        />
+      )}
       <header className="flex justify-between items-center mb-12 border-b border-white/10 pb-6">
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
           LoveRevi
@@ -92,8 +133,8 @@ export default async function HomePage({
           <Link href="/explore" className="hidden md:block text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🔍 探す・登録する</Link>
           <Link href="/ranking" className="hidden md:block text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">🏆 ランキング</Link>
           {(new Date().getMonth() === 11 || new Date().getMonth() === 4) && (
-  <Link href="/recap" className="hidden md:block text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">📊 まとめ</Link>
-)}
+            <Link href="/recap" className="hidden md:block text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">📊 まとめ</Link>
+          )}
           <Link href="/settings/profile" className="flex items-center gap-2 hover:bg-white/5 px-2 py-1.5 rounded-full transition-colors">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} className="w-8 h-8 rounded-full object-cover" />
@@ -117,12 +158,12 @@ export default async function HomePage({
           <Flame className="w-6 h-6 text-amber-500" />
           <h2 className="text-2xl font-bold">みんなの熟成タイムライン</h2>
         </div>
-        
+
         <div className="space-y-6">
           {eventsWithReviews && eventsWithReviews.length > 0 ? (
             eventsWithReviews.map((event: any) => {
               const review = event.review;
-              
+
               const stageLabels: Record<string, string> = {
                 'day1': 'ファーストインプレッション',
                 'week1': '1週間後レビュー',
@@ -162,19 +203,19 @@ export default async function HomePage({
                           {event.users?.display_name || '名無し'}
                         </Link>
                         <div className="text-xs text-zinc-500 flex items-center gap-1">
-                           <Clock className="w-3 h-3" />
-                           {new Date(event.created_at).toLocaleString('ja-JP')}
+                          <Clock className="w-3 h-3" />
+                          {new Date(event.created_at).toLocaleString('ja-JP')}
                         </div>
                       </div>
                     </div>
-                    
+
                     {event.event_type === 'review_posted' && (
                       <div className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold inline-block">
                         {stageName}
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Item preview block */}
                   <Link href={`/items/${event.items?.id}`} className="block">
                     <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex gap-4 mb-4 hover:bg-white/10 transition-colors">
@@ -211,9 +252,9 @@ export default async function HomePage({
                           initialCount={likesCounts[review.id] || 0}
                           userId={user.id}
                         />
-                        <ShareButton 
+                        <ShareButton
                           text={`${event.items?.name}の${stageName}！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー`}
-                          url={`https://lovereview.vercel.app/reviews/${event.target_id}`} 
+                          url={`https://lovereview.vercel.app/reviews/${event.target_id}`}
                         />
                       </div>
                     </div>
@@ -223,7 +264,7 @@ export default async function HomePage({
             })
           ) : (
             <div className="text-center py-20 text-zinc-500 bg-black/40 rounded-3xl border border-white/5">
-              まだタイムラインに何もありません。<br/>一番最初のレビューを投稿してみましょう！
+              まだタイムラインに何もありません。<br />一番最初のレビューを投稿してみましょう！
             </div>
           )}
         </div>
