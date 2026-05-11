@@ -10,6 +10,7 @@ import EditReviewButton from '@/components/EditReviewButton'
 import ReviewComments from '@/components/ReviewComments'
 import RatingGraph from '@/components/RatingGraph'
 import WatchlistButton from '@/components/WatchlistButton'
+import CountUp from '@/components/CountUp'
 
 export default async function ItemDetailPage({
   params
@@ -141,19 +142,19 @@ export default async function ItemDetailPage({
           {totalUsers > 0 && (
             <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
-                <div className="text-2xl font-bold text-amber-400">{avgDays}</div>
+                <div className="text-2xl font-bold text-amber-400"><CountUp value={avgDays} /></div>
                 <div className="text-xs text-zinc-500 mt-1">平均愛用日数</div>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
-                <div className="text-2xl font-bold text-emerald-400">{stillUsingUsers}</div>
+                <div className="text-2xl font-bold text-emerald-400"><CountUp value={stillUsingUsers} /></div>
                 <div className="text-xs text-zinc-500 mt-1">まだ使ってる！人数</div>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
-                <div className="text-2xl font-bold text-pink-400">{todayUsingCount || 0}</div>
+                <div className="text-2xl font-bold text-pink-400"><CountUp value={todayUsingCount || 0} /></div>
                 <div className="text-xs text-zinc-500 mt-1">今日も使ってる！</div>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-2xl p-3 text-center">
-                <div className="text-2xl font-bold text-blue-400">{longTermCount || 0}</div>
+                <div className="text-2xl font-bold text-blue-400"><CountUp value={longTermCount || 0} /></div>
                 <div className="text-xs text-zinc-500 mt-1">長期レビュー数</div>
               </div>
             </div>
