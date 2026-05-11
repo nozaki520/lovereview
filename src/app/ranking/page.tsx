@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { Home, Trophy } from 'lucide-react'
 import RankingShareButton from '@/components/RankingShareButton'
+import FadeInCard from '@/components/FadeInCard'
 
 const GENRES = [
   { value: 'book', label: '📚 本・漫画' },
@@ -118,36 +119,38 @@ export default async function RankingPage() {
         <p className="text-xs text-zinc-500 mb-6">登録ユーザーの平均愛用日数が長い商品ランキング</p>
         <div className="space-y-3">
           {loveRanking.length > 0 ? loveRanking.map((entry, index) => (
-            <Link key={entry.itemId} href={`/items/${entry.itemId}`} className="block">
-              <div className="bg-black/40 border border-white/10 rounded-2xl p-4 flex items-center gap-4 hover:border-amber-500/30 transition-all hover:-translate-y-0.5">
-                <div className="text-2xl w-10 text-center">
-                  {RANK_MEDALS[index] || `${index + 1}`}
-                </div>
-                <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-white/10">
-                  {entry.item?.image_url ? (
-                    <img src={entry.item.image_url} alt={entry.item.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-xl">📦</span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="font-bold text-white">{entry.item?.name}</div>
-                  <div className="text-xs text-zinc-500">{genreLabels[entry.item?.genre] || entry.item?.genre}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-amber-400 font-bold">{entry.avgDays}日</div>
-                  <div className="text-xs text-zinc-500">
-                    {entry.stillUsingCount}/{entry.count}人がまだ使ってる
+            <FadeInCard key={entry.itemId} delay={index * 80}>
+              <Link key={entry.itemId} href={`/items/${entry.itemId}`} className="block">
+                <div className="bg-black/40 border border-white/10 rounded-2xl p-4 flex items-center gap-4 hover:border-amber-500/30 transition-all hover:-translate-y-0.5">
+                  <div className="text-2xl w-10 text-center">
+                    {RANK_MEDALS[index] || `${index + 1}`}
                   </div>
+                  <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-white/10">
+                    {entry.item?.image_url ? (
+                      <img src={entry.item.image_url} alt={entry.item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xl">📦</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-bold text-white">{entry.item?.name}</div>
+                    <div className="text-xs text-zinc-500">{genreLabels[entry.item?.genre] || entry.item?.genre}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-amber-400 font-bold">{entry.avgDays}日</div>
+                    <div className="text-xs text-zinc-500">
+                      {entry.stillUsingCount}/{entry.count}人がまだ使ってる
+                    </div>
 
-                  <RankingShareButton
-                    text={`【LoveRevi 愛用歴ランキング】\n${index + 1}位 ${entry.item?.name}\n平均愛用日数：${entry.avgDays}日\n${entry.stillUsingCount}/${entry.count}人がまだ使ってる！\n#LoveRevi #熟成レビュー`}
-                    url={`https://lovereview.vercel.app/items/${entry.itemId}`}
-                  />
+                    <RankingShareButton
+                      text={`【LoveRevi 愛用歴ランキング】\n${index + 1}位 ${entry.item?.name}\n平均愛用日数：${entry.avgDays}日\n${entry.stillUsingCount}/${entry.count}人がまだ使ってる！\n#LoveRevi #熟成レビュー`}
+                      url={`https://lovereview.vercel.app/items/${entry.itemId}`}
+                    />
 
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </FadeInCard>
           )) : (
             <div className="text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
               まだデータがありません
@@ -163,34 +166,36 @@ export default async function RankingPage() {
         </h2>
         <div className="space-y-3">
           {topItems && topItems.length > 0 ? topItems.map((item, index) => (
-            <Link key={item.id} href={`/items/${item.id}`} className="block">
-              <div className="bg-black/40 border border-white/10 rounded-2xl p-4 flex items-center gap-4 hover:border-amber-500/30 transition-all hover:-translate-y-0.5">
-                <div className="text-2xl w-10 text-center">
-                  {RANK_MEDALS[index] || `${index + 1}`}
-                </div>
-                <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-white/10">
-                  {item.image_url ? (
-                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-xl">📦</span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="font-bold text-white">{item.name}</div>
-                  <div className="text-xs text-zinc-500">{genreLabels[item.genre] || item.genre}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-amber-400 font-bold">★ {item.rating_average.toFixed(1)}</div>
-                  <div className="text-xs text-zinc-500">{item.rating_count}件のレビュー</div>
+            <FadeInCard key={item.id} delay={index * 80}>
+              <Link key={item.id} href={`/items/${item.id}`} className="block">
+                <div className="bg-black/40 border border-white/10 rounded-2xl p-4 flex items-center gap-4 hover:border-amber-500/30 transition-all hover:-translate-y-0.5">
+                  <div className="text-2xl w-10 text-center">
+                    {RANK_MEDALS[index] || `${index + 1}`}
+                  </div>
+                  <div className="w-12 h-12 bg-white/5 rounded-xl overflow-hidden flex items-center justify-center border border-white/10">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xl">📦</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-bold text-white">{item.name}</div>
+                    <div className="text-xs text-zinc-500">{genreLabels[item.genre] || item.genre}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-amber-400 font-bold">★ {item.rating_average.toFixed(1)}</div>
+                    <div className="text-xs text-zinc-500">{item.rating_count}件のレビュー</div>
 
-                  <RankingShareButton
-                    text={`【LoveRevi 総合ランキング】\n${index + 1}位 ${item.name}\n評価：★${item.rating_average.toFixed(1)}（${item.rating_count}件）\n#LoveRevi #熟成レビュー`}
-                    url={`https://lovereview.vercel.app/items/${item.id}`}
-                  />
+                    <RankingShareButton
+                      text={`【LoveRevi 総合ランキング】\n${index + 1}位 ${item.name}\n評価：★${item.rating_average.toFixed(1)}（${item.rating_count}件）\n#LoveRevi #熟成レビュー`}
+                      url={`https://lovereview.vercel.app/items/${item.id}`}
+                    />
 
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </FadeInCard>
           )) : (
             <div className="text-center py-12 text-zinc-500 bg-white/5 rounded-2xl border border-white/5">
               まだランキングデータがありません
