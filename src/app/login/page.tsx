@@ -4,10 +4,11 @@ import AuthForm from './AuthForm'
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string }>
+  searchParams: Promise<{ message?: string, tab?: string }>
 }) {
   const resolvedSearchParams = await searchParams;
   const message = resolvedSearchParams.message;
+  const tab = resolvedSearchParams.tab;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -26,7 +27,7 @@ export default async function LoginPage({
             <p className="text-sm text-zinc-400 mt-2 font-medium">時間が証明する、本当の価値。</p>
           </div>
 
-          <AuthForm message={message} />
+          <AuthForm message={message} tab={tab} />
         </div>
       </div>
     </div>

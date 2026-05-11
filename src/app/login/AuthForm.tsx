@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { login, signup } from './actions'
 
-export default function AuthForm({ message }: { message?: string }) {
-  const [isLogin, setIsLogin] = useState(true)
+export default function AuthForm({ message, tab }: { message?: string, tab?: string }) {
+  const [isLogin, setIsLogin] = useState(tab !== 'signup')
   const [userId, setUserId] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
