@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { Search, Plus, Home } from 'lucide-react'
+import FadeInCard from '@/components/FadeInCard'
 
 const GENRES = [
   { value: '', label: 'すべて' },
@@ -84,11 +85,10 @@ export default async function ExplorePage({
             <Link
               key={g.value}
               href={`/explore?q=${q}&genre=${g.value}&sort=${sort}`}
-              className={`px-4 py-2 rounded-full text-sm font-bold border transition-all ${
-                genre === g.value
+              className={`px-4 py-2 rounded-full text-sm font-bold border transition-all ${genre === g.value
                   ? 'bg-amber-500 text-black border-amber-500'
                   : 'bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10'
-              }`}
+                }`}
             >
               {g.label}
             </Link>
@@ -105,11 +105,10 @@ export default async function ExplorePage({
             <Link
               key={s.value}
               href={`/explore?q=${q}&genre=${genre}&sort=${s.value}`}
-              className={`px-4 py-2 rounded-full text-sm font-bold border transition-all ${
-                sort === s.value
+              className={`px-4 py-2 rounded-full text-sm font-bold border transition-all ${sort === s.value
                   ? 'bg-white/20 text-white border-white/30'
                   : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
-              }`}
+                }`}
             >
               {s.label}
             </Link>
@@ -120,30 +119,32 @@ export default async function ExplorePage({
       {/* 商品一覧 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items?.map(item => (
-          <Link key={item.id} href={`/items/${item.id}`} className="block group">
-            <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 h-full hover:border-amber-500/50 transition-all hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(245,158,11,0.15)]">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center overflow-hidden border border-white/10">
-                  {item.image_url ? (
-                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-2xl">📦</span>
-                  )}
+          <FadeInCard key={item.id} delay={index * 60}>
+            <Link key={item.id} href={`/items/${item.id}`} className="block group">
+              <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 h-full hover:border-amber-500/50 transition-all hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(245,158,11,0.15)]">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center overflow-hidden border border-white/10">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-2xl">📦</span>
+                    )}
+                  </div>
+                  <span className="px-3 py-1 bg-white/5 text-zinc-300 text-xs font-medium rounded-full border border-white/10">
+                    {GENRES.find(g => g.value === item.genre)?.label || item.genre}
+                  </span>
                 </div>
-                <span className="px-3 py-1 bg-white/5 text-zinc-300 text-xs font-medium rounded-full border border-white/10">
-                  {GENRES.find(g => g.value === item.genre)?.label || item.genre}
-                </span>
+                <h3 className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors line-clamp-2 mb-2">
+                  {item.name}
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-zinc-400 font-medium">
+                  <span className="text-yellow-500">★</span>
+                  <span>{item.rating_average.toFixed(1)}</span>
+                  <span className="text-zinc-500">({item.rating_count}件のレビュー)</span>
+                </div>
               </div>
-              <h3 className="font-bold text-lg text-white group-hover:text-amber-400 transition-colors line-clamp-2 mb-2">
-                {item.name}
-              </h3>
-              <div className="flex items-center gap-2 text-sm text-zinc-400 font-medium">
-                <span className="text-yellow-500">★</span>
-                <span>{item.rating_average.toFixed(1)}</span>
-                <span className="text-zinc-500">({item.rating_count}件のレビュー)</span>
-              </div>
-            </div>
-          </Link>
+            </Link>
+          </FadeInCard>
         ))}
 
         {items?.length === 0 && (
