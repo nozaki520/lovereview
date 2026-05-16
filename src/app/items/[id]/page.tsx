@@ -11,6 +11,7 @@ import ReviewComments from '@/components/ReviewComments'
 import RatingGraph from '@/components/RatingGraph'
 import WatchlistButton from '@/components/WatchlistButton'
 import CountUp from '@/components/CountUp'
+import RetireButton from '@/components/RetireButton'
 
 export default async function ItemDetailPage({
   params
@@ -187,13 +188,22 @@ export default async function ItemDetailPage({
       </div>
 
       {userItem && (
-        <div className="mt-6">
+        <div className="mt-6 space-y-3">
           <StillUsingButton
             userItemId={userItem.id}
             itemName={item.name}
             daysElapsed={daysElapsed}
             initialPressed={alreadyPressedToday}
           />
+          {userItem.is_still_using && (
+            <RetireButton
+              userItemId={userItem.id}
+              itemId={item.id}
+              itemName={item.name}
+              userId={user!.id}
+              daysElapsed={daysElapsed}
+            />
+          )}
         </div>
       )}
 
