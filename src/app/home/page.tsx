@@ -11,6 +11,7 @@ import LikeButton from '@/components/LikeButton'
 import OnboardingModal from '@/components/OnboardingModal'
 import RecapModal from '@/components/RecapModal'
 import FadeInCard from '@/components/FadeInCard'
+import ReviewComments from '@/components/ReviewComments'
 
 export default async function HomePage({
   searchParams,
@@ -55,7 +56,7 @@ export default async function HomePage({
   const reviewIds = feedEvents?.filter(e => e.event_type === 'review_posted' && e.target_id).map(e => e.target_id) || []
   let reviews: any[] = []
   if (reviewIds.length > 0) {
-    const { data } = await supabase.from('reviews').select('id, rating, body, stage, days_elapsed').in('id', reviewIds)
+    const { data } = await supabase.from('reviews').select('id, rating, body, stage, days_elapsed, review_comments(id, body, created_at, user_id, users(display_name, avatar_url, username))').in('id', reviewIds)
     reviews = data || []
   }
 
@@ -260,6 +261,13 @@ export default async function HomePage({
                         <ShareButton
                           text={`${event.items?.name}の${stageName}！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー`}
                           url={`https://lovereview.vercel.app/reviews/${event.target_id}`}
+                        />
+                      </div>
+                      <div className="mt-3">
+                        <ReviewComments
+                          reviewId={review.id}
+                          initialComments={(review.review_comments as any[]) || []}
+                          currentUserId={user.id}
                         />
                       </div>
                     </div>
