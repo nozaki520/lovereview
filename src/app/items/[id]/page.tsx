@@ -189,20 +189,26 @@ export default async function ItemDetailPage({
 
       {userItem && (
         <div className="mt-6 space-y-3">
-          <StillUsingButton
-            userItemId={userItem.id}
-            itemName={item.name}
-            daysElapsed={daysElapsed}
-            initialPressed={alreadyPressedToday}
-          />
-          {userItem.is_still_using && (
-            <RetireButton
-              userItemId={userItem.id}
-              itemId={item.id}
-              itemName={item.name}
-              userId={user!.id}
-              daysElapsed={daysElapsed}
-            />
+          {userItem.is_still_using ? (
+            <>
+              <StillUsingButton
+                userItemId={userItem.id}
+                itemName={item.name}
+                daysElapsed={daysElapsed}
+                initialPressed={alreadyPressedToday}
+              />
+              <RetireButton
+                userItemId={userItem.id}
+                itemId={item.id}
+                itemName={item.name}
+                userId={user!.id}
+                daysElapsed={daysElapsed}
+              />
+            </>
+          ) : (
+            <div className="py-3 px-4 border border-zinc-700 text-zinc-500 font-bold rounded-xl text-sm text-center">
+              🏁 この商品はリタイア済みです
+            </div>
           )}
         </div>
       )}
