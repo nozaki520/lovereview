@@ -26,7 +26,7 @@ export default function PushNotificationButton() {
       const activeRegistration = await navigator.serviceWorker.getRegistration('/sw.js')
       const sub = await activeRegistration!.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+        applicationServerKey: 'BCZq7B0ce-RnoQJe0mO4XNY4LR0uHhHHS4THcdAtjYWSFdyPKDP7Psb8wGVtAUPY8dZW4x6swgQ3mbKHTmv0Rts',
       })
 
       const { endpoint, keys } = sub.toJSON() as any
