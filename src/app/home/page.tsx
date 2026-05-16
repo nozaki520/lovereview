@@ -245,9 +245,11 @@ export default async function HomePage({
                   {/* Review Content Preview */}
                   {review && (
                     <div className="mt-4">
-                      <p className="text-zinc-300 leading-relaxed text-sm whitespace-pre-wrap mb-4">
+                      <Link href={`/reviews/${review.id}`} className="block">
+                       <p className="text-zinc-300 leading-relaxed text-sm whitespace-pre-wrap mb-4 hover:text-white transition-colors cursor-pointer">
                         {review.body}
-                      </p>
+                       </p>
+                      </Link>
                       <div className="flex justify-end items-center gap-3">
                         <LikeButton
                           reviewId={review.id}
