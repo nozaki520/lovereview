@@ -261,7 +261,11 @@ export default async function ItemDetailPage({
                     />
                   </div>
 
-                  <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{review.body}</p>
+                  <Link href={`/reviews/${review.id}`} className="block">
+                  <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap hover:text-white transition-colors cursor-pointer">
+                    {review.body}
+                  </p>
+                </Link>
                   {user && (
                     <div className="flex justify-end gap-2 mt-3">
                       <EditReviewButton
