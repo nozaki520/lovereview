@@ -4,13 +4,13 @@ import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
-export default function RetireButton({ 
-  userItemId, 
+export default function RetireButton({
+  userItemId,
   itemId,
   itemName,
   userId,
   daysElapsed
-}: { 
+}: {
   userItemId: string
   itemId: string
   itemName: string
@@ -27,7 +27,7 @@ export default function RetireButton({
     const supabase = createClient()
 
     // リタイアレビューを投稿
-    const { error: reviewError } = await supabase
+    const { data: reviewData, error: reviewError } = await supabase
       .from('reviews')
       .insert({
         user_item_id: userItemId,
@@ -38,6 +38,8 @@ export default function RetireButton({
         days_elapsed: daysElapsed,
         stage: 'retired',
       })
+      .select()
+      .single()
 
     if (reviewError) {
       alert('投稿に失敗しました。もう一度お試しください。')
@@ -58,7 +60,7 @@ export default function RetireButton({
         user_id: userId,
         item_id: itemId,
         event_type: 'retired',
-        target_id: userItemId,
+        target_id: reviewData?.id,  // ← reviewのIDに変更！
       })
 
     setShowModal(false)
