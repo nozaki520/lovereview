@@ -154,7 +154,11 @@ export default async function ReviewPage({
 
         {/* 星・経過日数 */}
         <div className="flex items-center justify-between mb-6 pb-6 border-b border-white/10">
-          <AnimatedStars rating={review.rating || 0} />
+          {review.rating ? (
+            <AnimatedStars rating={review.rating} />
+          ) : (
+            <span className="text-zinc-500 text-sm">評価なし</span>
+          )}
           <div className="text-sm text-zinc-400 font-medium">
             使用開始から <span className="text-white font-bold">{review.days_elapsed}日目</span>
           </div>

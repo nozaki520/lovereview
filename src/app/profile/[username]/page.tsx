@@ -193,20 +193,37 @@ export default async function ProfilePage({
                 'beyond': '長期レビュー',
                 'retired': 'リタイアレビュー',
               }
+
+              const genreLabels: Record<string, string> = {
+                'book': '📚 本・漫画',
+                'game': '🎮 ゲーム',
+                'gadget': '📱 ガジェット・家電',
+                'fashion': '👗 ファッション',
+                'food': '🍜 食品',
+                'spiritual': '🔮 占い・スピリチュアル',
+                'beauty': '💄 コスメ・美容',
+                'other': '🎁 その他',
+              }
               return (
                 <div key={review.id} className="bg-black/40 border border-white/10 rounded-2xl p-5 hover:border-amber-500/30 transition-colors">
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <div className="font-bold text-white">{review.items?.name}</div>
-                      <div className="text-xs text-zinc-500">{review.items?.genre}</div>
+                      <div className="text-xs text-zinc-500">{genreLabels[review.items?.genre] || review.items?.genre}</div>
                     </div>
                     <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold">
                       {stageLabels[review.stage] || review.stage}
                     </span>
                   </div>
                   <div className="text-amber-500 text-sm mb-2">
-                    {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
-                    <span className="text-zinc-500 text-xs ml-2">{review.days_elapsed}日目</span>
+                    {review.rating ? (
+                      <>
+                        {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                        <span className="text-zinc-500 text-xs ml-2">{review.days_elapsed}日目</span>
+                      </>
+                    ) : (
+                      <span className="text-zinc-500 text-xs">{review.days_elapsed}日目（評価なし）</span>
+                    )}
                   </div>
                   <p className="text-zinc-300 text-sm leading-relaxed">{review.body}</p>
                 </div>
@@ -233,10 +250,12 @@ export default async function ProfilePage({
                   </div>
                   <div className="font-bold text-white text-sm mb-1 line-clamp-2">{userItem.items?.name}</div>
                   <div className="text-xs text-zinc-500">
-                    {Math.floor((Date.now() - new Date(userItem.purchased_at).getTime()) / (1000 * 60 * 60 * 24))}日愛用中
+                    {Math.floor((Date.now() - new Date(userItem.purchased_at).getTime()) / (1000 * 60 * 60 * 24))}日{userItem.is_still_using ? '愛用中' : '使用'}
                   </div>
-                  {userItem.is_still_using && (
+                  {userItem.is_still_using ? (
                     <div className="text-xs text-emerald-400 mt-1">🌿 まだ使ってる！</div>
+                  ) : (
+                    <div className="text-xs text-zinc-500 mt-1">🏁 リタイア済み</div>
                   )}
                 </div>
               </Link>
