@@ -78,7 +78,7 @@ export default async function HomePage({
   }
 
   const eventsWithReviews = feedEvents?.map(event => {
-    if (event.event_type === 'review_posted') {
+    if (event.event_type === 'review_posted' || event.event_type === 'retired') {
       return { ...event, review: reviews.find(r => r.id === event.target_id) }
     }
     return event
@@ -116,18 +116,18 @@ export default async function HomePage({
   return (
     <div className="min-h-screen p-8 max-w-4xl mx-auto">
       {resolvedSearch.welcome === '1' && <OnboardingModal />}
-      {isDecember && resolvedSearch.welcome !== '1' && 
-      (Date.now() - new Date(profile?.created_at).getTime()) > 1000 * 60 * 60 && (
-        <RecapModal
-          displayName={profile?.display_name || 'ゲスト'}
-          topReview={recapReviews?.[0] ? {
-            itemName: (recapReviews[0].items as any)?.name,
-            stage: recapReviews[0].stage,
-          } : null}
-          topItem={recapItems?.[0] ? { name: (recapItems[0].items as any)?.name } : null}
-          longestItem={recapLongest}
-        />
-      )}
+      {isDecember && resolvedSearch.welcome !== '1' &&
+        (Date.now() - new Date(profile?.created_at).getTime()) > 1000 * 60 * 60 && (
+          <RecapModal
+            displayName={profile?.display_name || 'ゲスト'}
+            topReview={recapReviews?.[0] ? {
+              itemName: (recapReviews[0].items as any)?.name,
+              stage: recapReviews[0].stage,
+            } : null}
+            topItem={recapItems?.[0] ? { name: (recapItems[0].items as any)?.name } : null}
+            longestItem={recapLongest}
+          />
+        )}
       <header className="flex justify-between items-center mb-12 border-b border-white/10 pb-6">
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">
           LoveRevi
@@ -193,88 +193,88 @@ export default async function HomePage({
 
               return (
                 <FadeInCard key={event.id} delay={index * 80}>
-                <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-lg hover:border-amber-500/30 transition-colors">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <Link href={`/profile/${event.users?.username}`} className="w-10 h-10 bg-white/10 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-amber-400 transition-all">
-                        {event.users?.avatar_url ? (
-                          <img src={event.users.avatar_url} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-lg">👤</span>
-                        )}
-                      </Link>
-                      <div>
-                        <Link href={`/profile/${event.users?.username}`} className="font-bold text-zinc-200 hover:text-amber-400 transition-colors">
-                          {event.users?.display_name || '名無し'}
+                  <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-lg hover:border-amber-500/30 transition-colors">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-3">
+                        <Link href={`/profile/${event.users?.username}`} className="w-10 h-10 bg-white/10 rounded-full overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-amber-400 transition-all">
+                          {event.users?.avatar_url ? (
+                            <img src={event.users.avatar_url} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-lg">👤</span>
+                          )}
                         </Link>
-                        <div className="text-xs text-zinc-500 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {new Date(event.created_at).toLocaleString('ja-JP')}
+                        <div>
+                          <Link href={`/profile/${event.users?.username}`} className="font-bold text-zinc-200 hover:text-amber-400 transition-colors">
+                            {event.users?.display_name || '名無し'}
+                          </Link>
+                          <div className="text-xs text-zinc-500 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {new Date(event.created_at).toLocaleString('ja-JP')}
+                          </div>
                         </div>
                       </div>
+
+                      {(event.event_type === 'review_posted' || event.event_type === 'retired') && stageName && (
+                        <div className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold inline-block">
+                          {stageName}
+                        </div>
+                      )}
                     </div>
 
-                    {(event.event_type === 'review_posted' || event.event_type === 'retired') && stageName && (
-                      <div className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold inline-block">
-                        {stageName}
+                    {/* Item preview block */}
+                    <Link href={`/items/${event.items?.id}`} className="block">
+                      <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex gap-4 mb-4 hover:bg-white/10 transition-colors">
+                        <div className="w-16 h-16 bg-black/50 rounded-xl overflow-hidden flex items-center justify-center border border-white/10">
+                          {event.items?.image_url ? (
+                            <img src={event.items.image_url} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-2xl">📦</span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-xs text-zinc-500 mb-1">{genreLabels[event.items?.genre] || event.items?.genre}</div>
+                          <div className="font-bold text-white mb-1">{event.items?.name}</div>
+                          {review && (
+                            <div className="flex items-center gap-1 text-amber-500 text-sm">
+                              {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
+                              <span className="text-zinc-500 text-xs ml-2">({review.days_elapsed}日目)</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+
+                    {/* Review Content Preview */}
+                    {review && (
+                      <div className="mt-4">
+                        <Link href={`/reviews/${review.id}`} className="block">
+                          <p className="text-zinc-300 leading-relaxed text-sm whitespace-pre-wrap mb-4 hover:text-white transition-colors cursor-pointer">
+                            {review.body}
+                          </p>
+                        </Link>
+                        <div className="flex justify-end items-center gap-3">
+                          <LikeButton
+                            reviewId={review.id}
+                            initialLiked={userLikes[review.id] || false}
+                            initialCount={likesCounts[review.id] || 0}
+                            userId={user.id}
+                          />
+                          <ShareButton
+                            text={`${event.items?.name}の${stageName}！\n使用開始から${review.days_elapsed}日目\n${review.rating ? `評価：★${review.rating}` : ''}\n\n#LoveRevi #熟成レビュー`}
+                            url={`https://lovereview.vercel.app/reviews/${event.target_id}`}
+                          />
+                        </div>
+                        <div className="mt-3">
+                          <ReviewComments
+                            reviewId={review.id}
+                            initialComments={(review.review_comments as any[]) || []}
+                            currentUserId={user.id}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
-
-                  {/* Item preview block */}
-                  <Link href={`/items/${event.items?.id}`} className="block">
-                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex gap-4 mb-4 hover:bg-white/10 transition-colors">
-                      <div className="w-16 h-16 bg-black/50 rounded-xl overflow-hidden flex items-center justify-center border border-white/10">
-                        {event.items?.image_url ? (
-                          <img src={event.items.image_url} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-2xl">📦</span>
-                        )}
-                      </div>
-                      <div>
-                        <div className="text-xs text-zinc-500 mb-1">{genreLabels[event.items?.genre] || event.items?.genre}</div>
-                        <div className="font-bold text-white mb-1">{event.items?.name}</div>
-                        {review && (
-                          <div className="flex items-center gap-1 text-amber-500 text-sm">
-                            {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
-                            <span className="text-zinc-500 text-xs ml-2">({review.days_elapsed}日目)</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-
-                  {/* Review Content Preview */}
-                  {review && (
-                    <div className="mt-4">
-                      <Link href={`/reviews/${review.id}`} className="block">
-                       <p className="text-zinc-300 leading-relaxed text-sm whitespace-pre-wrap mb-4 hover:text-white transition-colors cursor-pointer">
-                        {review.body}
-                       </p>
-                      </Link>
-                      <div className="flex justify-end items-center gap-3">
-                        <LikeButton
-                          reviewId={review.id}
-                          initialLiked={userLikes[review.id] || false}
-                          initialCount={likesCounts[review.id] || 0}
-                          userId={user.id}
-                        />
-                        <ShareButton
-                          text={`${event.items?.name}の${stageName}！\n使用開始から${review.days_elapsed}日目\n${review.rating ? `評価：★${review.rating}` : ''}\n\n#LoveRevi #熟成レビュー`}
-                          url={`https://lovereview.vercel.app/reviews/${event.target_id}`}
-                        />
-                      </div>
-                      <div className="mt-3">
-                        <ReviewComments
-                          reviewId={review.id}
-                          initialComments={(review.review_comments as any[]) || []}
-                          currentUserId={user.id}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </FadeInCard>
+                </FadeInCard>
               )
             })
           ) : (
