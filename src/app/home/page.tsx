@@ -236,8 +236,14 @@ export default async function HomePage({
                           <div className="font-bold text-white mb-1">{event.items?.name}</div>
                           {review && (
                             <div className="flex items-center gap-1 text-amber-500 text-sm">
-                              {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
-                              <span className="text-zinc-500 text-xs ml-2">({review.days_elapsed}日目)</span>
+                              {review.rating ? (
+                                <>
+                                  {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                                  <span className="text-zinc-500 text-xs ml-2">({review.days_elapsed}日目)</span>
+                                </>
+                              ) : (
+                                <span className="text-zinc-500 text-xs">({review.days_elapsed}日目)</span>
+                              )}
                             </div>
                           )}
                         </div>

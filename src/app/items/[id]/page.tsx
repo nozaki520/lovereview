@@ -269,7 +269,11 @@ export default async function ItemDetailPage({
 
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-1 text-amber-500 text-sm">
-                      {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
+                      {review.rating ? (
+                        <>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</>
+                      ) : (
+                        <span className="text-zinc-500 text-xs">評価なし</span>
+                      )}
                     </div>
                     <ShareButton
                       text={`${item.name}の${stageName}を投稿しました！\n使用開始から${review.days_elapsed}日目\n${review.rating ? `評価：★${review.rating}` : ''}\n\n#LoveRevi #熟成レビュー\n`}
