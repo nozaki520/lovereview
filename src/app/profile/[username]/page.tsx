@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import FollowButton from '@/components/FollowButton'
+import AnimatedBadge from '@/components/AnimatedBadge'
 
 export default async function ProfilePage({
   params,
@@ -133,14 +134,14 @@ export default async function ProfilePage({
         {/* 愛用日数バッジ */}
         {earnedBadges.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/10">
-            {earnedBadges.map(badge => (
-              <div
+            {earnedBadges.map((badge, index) => (
+              <AnimatedBadge
                 key={badge.days}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full"
-              >
-                <span className="text-base">{badge.emoji}</span>
-                <span className={`text-xs font-bold ${badge.color}`}>{badge.label}愛用</span>
-              </div>
+                emoji={badge.emoji}
+                label={badge.label}
+                color={badge.color}
+                delay={index * 150}
+              />
             ))}
           </div>
         )}
