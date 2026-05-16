@@ -21,7 +21,10 @@ export default function PushNotificationButton() {
     setLoading(true)
     try {
       const registration = await navigator.serviceWorker.register('/sw.js')
-      const sub = await registration.pushManager.subscribe({
+      // Service Workerがアクティブになるまで待つ
+      await navigator.serviceWorker.ready
+      const activeRegistration = await navigator.serviceWorker.getRegistration('/sw.js')
+      const sub = await activeRegistration!.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: 'BCZq7B0ce-RnoQJe0mO4XNY4LR0uHhHHS4THcdAtjYWSFdyPKDP7Psb8wGVtAUPY8dZW4x6swgQ3mbKHTmv0Rts',
       })
