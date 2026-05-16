@@ -10,6 +10,10 @@ export default function PushNotificationButton() {
   useEffect(() => {
     if ('Notification' in window) {
       setPermission(Notification.permission)
+      // すでに許可済みの場合は自動でsubscribe
+      if (Notification.permission === 'granted') {
+        subscribe()
+      }
     }
   }, [])
 
