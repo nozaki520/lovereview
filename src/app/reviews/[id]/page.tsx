@@ -5,6 +5,7 @@ import { ArrowLeft, Clock } from 'lucide-react'
 import ShareButton from '@/components/ShareButton'
 import LikeButton from '@/components/LikeButton'
 import type { Metadata } from 'next'
+import AnimatedStars from '@/components/AnimatedStars'
 
 const stageLabels: Record<string, string> = {
   'day1': 'ファーストインプレッション',
@@ -150,9 +151,7 @@ export default async function ReviewPage({
 
         {/* 星・経過日数 */}
         <div className="flex items-center justify-between mb-6 pb-6 border-b border-white/10">
-          <div className="flex items-center gap-1 text-amber-500 text-xl">
-            {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
-          </div>
+          <AnimatedStars rating={review.rating || 0} />
           <div className="text-sm text-zinc-400 font-medium">
             使用開始から <span className="text-white font-bold">{review.days_elapsed}日目</span>
           </div>
