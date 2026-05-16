@@ -6,6 +6,7 @@ import ShareButton from '@/components/ShareButton'
 import LikeButton from '@/components/LikeButton'
 import type { Metadata } from 'next'
 import AnimatedStars from '@/components/AnimatedStars'
+import ReviewComments from '@/components/ReviewComments'
 
 const stageLabels: Record<string, string> = {
   'day1': 'ファーストインプレッション',
@@ -76,7 +77,7 @@ export default async function ReviewPage({
 
   const { data: review } = await supabase
     .from('reviews')
-    .select('*, users(display_name, avatar_url, username), items(id, name, genre, image_url)')
+    .select('*, users(display_name, avatar_url, username), items(id, name, genre, image_url), review_comments(id, body, created_at, user_id, users(display_name, avatar_url, username))')
     .eq('id', id)
     .single()
 
@@ -175,6 +176,11 @@ export default async function ReviewPage({
             url={`https://lovereview.vercel.app/reviews/${review.id}`}
           />
         </div>
+        <ReviewComments
+            reviewId={review.id}
+            initialComments={(review.review_comments as any[]) || []}
+            currentUserId={user?.id || null}
+          />
       </div>
 
       {/* 未ログインの場合のCTA */}
