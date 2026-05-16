@@ -118,9 +118,9 @@ export default async function ExplorePage({
 
       {/* 商品一覧 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items?.map(item => (
+        {items?.map((item, index) => (
           <FadeInCard key={item.id} delay={index * 60}>
-            <Link key={item.id} href={`/items/${item.id}`} className="block group">
+            <Link href={`/items/${item.id}`} className="block group">
               <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 h-full hover:border-amber-500/50 transition-all hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(245,158,11,0.15)]">
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-16 h-16 bg-white/5 rounded-xl flex items-center justify-center overflow-hidden border border-white/10">
