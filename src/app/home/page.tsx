@@ -53,7 +53,7 @@ export default async function HomePage({
     .limit(30)
 
   // Fetch related reviews since target_id is polymorphic without FK
-  const reviewIds = feedEvents?.filter(e => e.event_type === 'review_posted' && e.target_id).map(e => e.target_id) || []
+  const reviewIds = feedEvents?.filter(e => (e.event_type === 'review_posted' || e.event_type === 'retired') && e.target_id).map(e => e.target_id) || []
   let reviews: any[] = []
   if (reviewIds.length > 0) {
     const { data } = await supabase.from('reviews').select('id, rating, body, stage, days_elapsed, review_comments(id, body, created_at, user_id, users(display_name, avatar_url, username))').in('id', reviewIds)
@@ -214,7 +214,7 @@ export default async function HomePage({
                       </div>
                     </div>
 
-                    {event.event_type === 'review_posted' && (
+                    {(event.event_type === 'review_posted' || event.event_type === 'retired') && stageName && (
                       <div className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold inline-block">
                         {stageName}
                       </div>
