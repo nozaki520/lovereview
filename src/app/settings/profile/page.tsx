@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowLeft, UserCircle, CheckCircle2, Upload, AlertTriangle } from 'lucide-react'
 import { updateProfile } from './actions'
 import DeleteAccountButton from './DeleteAccountButton'
+import PushNotificationButton from '@/components/PushNotificationButton'
 
 export default async function ProfileSettingsPage({
   searchParams
@@ -97,6 +98,16 @@ export default async function ProfileSettingsPage({
             変更を保存する
           </button>
         </form>
+
+        <div className="mt-8 pt-6 border-t border-white/10">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <div className="text-sm font-bold text-zinc-300">プッシュ通知</div>
+              <div className="text-xs text-zinc-500 mt-1">レビューのタイミングをお知らせします</div>
+            </div>
+            <PushNotificationButton />
+          </div>
+        </div>
 
         <div className="mt-8 pt-6 border-t border-red-500/10">
           <div className="flex items-center gap-2 mb-3">
