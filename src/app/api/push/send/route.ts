@@ -10,7 +10,8 @@ webpush.setVapidDetails(
 
 export async function POST(req: Request) {
   const authHeader = req.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const cronSecret = req.headers.get('x-vercel-cron-signature') 
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && !cronSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
