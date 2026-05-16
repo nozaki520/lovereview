@@ -236,7 +236,8 @@ export default async function ItemDetailPage({
                 'month3': '3ヶ月後レビュー',
                 'month6': '半年後レビュー',
                 'year1': '1年後レビュー',
-                'beyond': '長期レビュー'
+                'beyond': '長期レビュー',
+                'retired': 'リタイアレビュー',
               }
               const stageName = stageLabels[review.stage] || review.stage
 
@@ -271,7 +272,7 @@ export default async function ItemDetailPage({
                       {'★'.repeat(review.rating || 0)}{'☆'.repeat(5 - (review.rating || 0))}
                     </div>
                     <ShareButton
-                      text={`${item.name}の${stageName}を投稿しました！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー\n`}
+                      text={`${item.name}の${stageName}を投稿しました！\n使用開始から${review.days_elapsed}日目\n${review.rating ? `評価：★${review.rating}` : ''}\n\n#LoveRevi #熟成レビュー\n`}
                       url={`https://lovereview.vercel.app/reviews/${review.id}`}
                     />
                   </div>

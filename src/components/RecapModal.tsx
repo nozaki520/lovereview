@@ -19,6 +19,7 @@ const stageLabels: Record<string, string> = {
   'month6': '半年後レビュー',
   'year1': '1年後レビュー',
   'beyond': '長期レビュー',
+  'retired': 'リタイアレビュー',
 }
 
 export default function RecapModal({ displayName, topReview, topItem, longestItem }: Props) {

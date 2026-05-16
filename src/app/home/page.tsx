@@ -174,7 +174,8 @@ export default async function HomePage({
                 'month3': '3ヶ月後レビュー',
                 'month6': '半年後レビュー',
                 'year1': '1年後レビュー',
-                'beyond': '長期レビュー'
+                'beyond': '長期レビュー',
+                'retired': 'リタイアレビュー',
               }
 
               // ここに追加
@@ -259,7 +260,7 @@ export default async function HomePage({
                           userId={user.id}
                         />
                         <ShareButton
-                          text={`${event.items?.name}の${stageName}！\n使用開始から${review.days_elapsed}日目\n評価：★${review.rating}\n\n#LoveRevi #熟成レビュー`}
+                          text={`${event.items?.name}の${stageName}！\n使用開始から${review.days_elapsed}日目\n${review.rating ? `評価：★${review.rating}` : ''}\n\n#LoveRevi #熟成レビュー`}
                           url={`https://lovereview.vercel.app/reviews/${event.target_id}`}
                         />
                       </div>

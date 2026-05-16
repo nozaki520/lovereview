@@ -190,7 +190,8 @@ export default async function ProfilePage({
                 'month3': '3ヶ月後レビュー',
                 'month6': '半年後レビュー',
                 'year1': '1年後レビュー',
-                'beyond': '長期レビュー'
+                'beyond': '長期レビュー',
+                'retired': 'リタイアレビュー',
               }
               return (
                 <div key={review.id} className="bg-black/40 border border-white/10 rounded-2xl p-5 hover:border-amber-500/30 transition-colors">
