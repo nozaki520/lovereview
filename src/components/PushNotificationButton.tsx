@@ -48,6 +48,7 @@ export default function PushNotificationButton() {
     setLoading(false)
   }
 
+  if (typeof window === 'undefined') return null
   if (!('Notification' in window)) return null
   if (permission === 'denied') return null
 
