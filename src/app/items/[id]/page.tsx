@@ -99,10 +99,15 @@ export default async function ItemDetailPage({
 
   return (
     <div className="min-h-screen p-8 max-w-4xl mx-auto">
-      <Link href="/explore" className="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-8 inline-flex font-medium">
-        <ArrowLeft className="w-4 h-4" />
-        探す画面へ戻る
-      </Link>
+      <div className="flex items-center gap-4 mb-8">
+        <Link href="/explore" className="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors font-medium">
+          <ArrowLeft className="w-4 h-4" />
+          探す画面へ戻る
+        </Link>
+        <Link href="/home" className="flex items-center gap-2 text-zinc-400 hover:text-zinc-300 transition-colors font-medium text-sm">
+          🔥 タイムラインへ
+        </Link>
+      </div>
 
       {/* Item Header */}
       <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 mb-12 flex flex-col md:flex-row gap-8 shadow-2xl">
@@ -262,10 +267,10 @@ export default async function ItemDetailPage({
                   </div>
 
                   <Link href={`/reviews/${review.id}`} className="block">
-                  <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap hover:text-white transition-colors cursor-pointer">
-                    {review.body}
-                  </p>
-                </Link>
+                    <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap hover:text-white transition-colors cursor-pointer">
+                      {review.body}
+                    </p>
+                  </Link>
                   {user && (
                     <div className="flex justify-end gap-2 mt-3">
                       <EditReviewButton

@@ -100,13 +100,15 @@ export default async function ReviewPage({
 
   return (
     <div className="min-h-screen p-6 max-w-2xl mx-auto">
-      <Link
-        href={`/items/${item?.id}`}
-        className="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-8 font-medium"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        商品ページへ戻る
-      </Link>
+      <div className="flex items-center gap-4 mb-8">
+        <Link href={`/items/${item?.id}`} className="flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors font-medium">
+          <ArrowLeft className="w-4 h-4" />
+          商品ページへ戻る
+        </Link>
+        <Link href="/home" className="flex items-center gap-2 text-zinc-400 hover:text-zinc-300 transition-colors font-medium text-sm">
+          🔥 タイムラインへ
+        </Link>
+      </div>
 
       {/* 商品情報 */}
       <Link href={`/items/${item?.id}`} className="block mb-6">
@@ -177,10 +179,10 @@ export default async function ReviewPage({
           />
         </div>
         <ReviewComments
-            reviewId={review.id}
-            initialComments={(review.review_comments as any[]) || []}
-            currentUserId={user?.id || null}
-          />
+          reviewId={review.id}
+          initialComments={(review.review_comments as any[]) || []}
+          currentUserId={user?.id || null}
+        />
       </div>
 
       {/* 未ログインの場合のCTA */}
