@@ -47,7 +47,7 @@ export default async function HomePage({
     .from('feed_events')
     .select(`
       *,
-    users(display_name, avatar_url, username),      items(id, name, genre, image_url)
+    users(id, display_name, avatar_url, username),      items(id, name, genre, image_url)
     `)
     .order('created_at', { ascending: false })
     .limit(30)
@@ -264,6 +264,7 @@ export default async function HomePage({
                             initialLiked={userLikes[review.id] || false}
                             initialCount={likesCounts[review.id] || 0}
                             userId={user.id}
+                            reviewOwnerId={event.users?.id}
                           />
                           <ShareButton
                             text={`${event.items?.name}の${stageName}！\n使用開始から${review.days_elapsed}日目\n${review.rating ? `評価：★${review.rating}` : ''}\n\n#LoveRevi #熟成レビュー`}

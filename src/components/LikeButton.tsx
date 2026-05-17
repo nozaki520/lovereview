@@ -9,9 +9,10 @@ interface LikeButtonProps {
   initialLiked: boolean
   initialCount: number
   userId: string
+  reviewOwnerId?: string  // レビュー投稿者のID
 }
 
-export default function LikeButton({ reviewId, initialLiked, initialCount, userId }: LikeButtonProps) {
+export default function LikeButton({ reviewId, initialLiked, initialCount, userId, reviewOwnerId }: LikeButtonProps) {
   const [liked, setLiked] = useState(initialLiked)
   const [count, setCount] = useState(initialCount)
   const [loading, setLoading] = useState(false)
@@ -36,6 +37,28 @@ export default function LikeButton({ reviewId, initialLiked, initialCount, userI
         .insert({ user_id: userId, review_id: reviewId })
       setLiked(true)
       setCount(c => c + 1)
+
+      // 自分のレビュー以外にいいねした場合のみ通知
+      if (reviewOwnerId && reviewOwnerId !== userId) {
+        // いいねした人の情報を取得
+        const { data: myProfile } = await supabase
+          .from('users')
+          .select('display_name, username')
+          .eq('id', userId)
+          .single()
+
+        await supabase.from('notifications').insert({
+          user_id: reviewOwnerId,
+          type: 'liked',
+          target_id: reviewId,
+          is_read: false,
+          meta: {
+            review_id: reviewId,
+            user_display_name: myProfile?.display_name,
+            username: myProfile?.username,
+          }
+        })
+      }
     }
 
     setLoading(false)
