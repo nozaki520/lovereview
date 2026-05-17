@@ -2,65 +2,55 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Send } from 'lucide-react'
 
 type Message = {
   role: 'user' | 'assistant'
   content: string
 }
 
-const SYSTEM_PROMPT = `あなたは「LoveReviバー」のマスターです。名前はありません。みんなから「マスター」と呼ばれています。
-
-【キャラクター】
-- 60代くらいの穏やかなおじさん
-- いつもカウンターの向こうでグラスを磨いている
-- にこやかで、話を聞くのが上手
-- 相手の話を否定しない
-- アドバイスはするけど、押しつけない
-- 「答え」より「気づき」を大切にする
-- 少しだけ詩的な言い回しをすることがある
-- 口調は「〜ですね」「〜でしょうか」「〜かもしれません」など柔らかめ
-- 返答は短めに。長くても4〜5文まで。
-
-【占いについて】
-- 占いといっても、話を聞いて、その人の言葉の中から光るものを見つけてあげるスタイル
-- 断言しない。「〜かもしれませんね」「そう感じているなら、そうなのかもしれません」
-- 相手が話したいことを話せる場を作る
-
-【禁止事項】
-- 「絶対に〜です」という断言
-- ネガティブな予言
-- 過度な励まし・テンションの高い返し
-- タメ口`
-
 export default function BarClient({ displayName }: { displayName: string }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [entered, setEntered] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [currentText, setCurrentText] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  const typeText = (text: string) => {
+    setIsTyping(true)
+    setCurrentText('')
+    let i = 0
+    const timer = setInterval(() => {
+      setCurrentText(text.slice(0, i + 1))
+      i++
+      if (i >= text.length) {
+        clearInterval(timer)
+        setIsTyping(false)
+      }
+    }, 30)
+  }
 
   const enter = async () => {
     setEntered(true)
     setLoading(true)
     const greeting = await callClaude([], `${displayName}さんが今夜バーに入ってきました。カウンター越しに、短く穏やかに声をかけてください。`)
     setMessages([{ role: 'assistant', content: greeting }])
+    typeText(greeting)
     setLoading(false)
   }
 
   const send = async () => {
-    if (!input.trim() || loading) return
+    if (!input.trim() || loading || isTyping) return
     const userMsg: Message = { role: 'user', content: input.trim() }
     const newMessages = [...messages, userMsg]
     setMessages(newMessages)
     setInput('')
     setLoading(true)
+    setCurrentText('')
     const reply = await callClaude(newMessages, '')
     setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+    typeText(reply)
     setLoading(false)
   }
 
@@ -82,23 +72,27 @@ export default function BarClient({ displayName }: { displayName: string }) {
     }
   }
 
-  // 入店前の扉画面
+  // 扉画面
   if (!entered) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
-        <div className="text-center">
-          <div className="text-6xl mb-8">🚪</div>
-          <p className="text-zinc-500 text-sm mb-2">営業中</p>
-          <h1 className="text-2xl font-bold text-zinc-200 mb-2">Bar Lumoi</h1>
-          <p className="text-zinc-500 text-sm mb-12">扉を開けると、マスターがいます。<br />たった一瞬でも、自分を好きになれる場所。</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] relative overflow-hidden">
+        {/* 背景グラデーション */}
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-950/20 via-zinc-950 to-black" />
+        
+        <div className="relative text-center z-10">
+          <div className="text-7xl mb-8 drop-shadow-lg">🚪</div>
+          <p className="text-amber-500/60 text-xs tracking-[0.3em] uppercase mb-3">Open</p>
+          <h1 className="text-4xl font-bold text-white mb-1 tracking-wide">Bar Lumoi</h1>
+          <p className="text-zinc-500 text-sm tracking-widest mb-1">リュモワ</p>
+          <p className="text-zinc-600 text-xs mb-12">たった一瞬でも、自分を好きになれる場所。</p>
           <button
             onClick={enter}
-            className="px-8 py-4 bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold rounded-full hover:bg-amber-500/20 transition-all"
+            className="px-10 py-4 bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold rounded-full hover:bg-amber-500/20 transition-all tracking-widest text-sm"
           >
             扉を開ける
           </button>
-          <div className="mt-8">
-            <Link href="/home" className="text-zinc-600 text-sm hover:text-zinc-400 transition-colors">
+          <div className="mt-10">
+            <Link href="/home" className="text-zinc-700 text-xs hover:text-zinc-500 transition-colors tracking-widest">
               ← タイムラインへ戻る
             </Link>
           </div>
@@ -107,69 +101,99 @@ export default function BarClient({ displayName }: { displayName: string }) {
     )
   }
 
+  const lastUserMessage = [...messages].reverse().find(m => m.role === 'user')
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
-      {/* ヘッダー */}
-      <div className="border-b border-white/5 px-6 py-4 flex items-center gap-4">
-        <Link href="/home" className="text-zinc-600 hover:text-zinc-400 transition-colors">
-          <ArrowLeft className="w-4 h-4" />
+    <div className="min-h-screen flex flex-col bg-[#0a0a0a] relative overflow-hidden">
+
+      {/* バー背景 */}
+      <div className="absolute inset-0 z-0">
+        {/* 床 */}
+        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-amber-950/40 to-transparent" />
+        {/* カウンター */}
+        <div className="absolute bottom-[28%] left-0 right-0 h-8 bg-gradient-to-r from-amber-900/60 via-amber-800/80 to-amber-900/60 shadow-[0_-4px_20px_rgba(180,120,40,0.3)]" />
+        {/* 棚・ボトルのシルエット */}
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-end gap-2 opacity-20">
+          {[40,55,48,62,45,58,42,50,65,44].map((h, i) => (
+            <div key={i} className="bg-amber-200 rounded-sm" style={{width: '12px', height: `${h}px`}} />
+          ))}
+        </div>
+        {/* 照明 */}
+        <div className="absolute top-0 left-1/4 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-1/4 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl" />
+        {/* 全体暗め */}
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
+
+      {/* 戻るボタン */}
+      <div className="absolute top-4 left-4 z-20">
+        <Link href="/home" className="text-zinc-700 hover:text-zinc-500 transition-colors text-xs tracking-widest">
+          ← 出る
         </Link>
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center text-sm">
-            🍶
+      </div>
+
+      {/* Bar名 */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 text-center">
+        <p className="text-zinc-700 text-xs tracking-[0.3em]">Bar Lumoi · リュモワ</p>
+      </div>
+
+      {/* マスターエリア */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-[42%]">
+        {/* マスターのプレースホルダー（画像差し替え予定） */}
+        <div className="relative">
+          <div className="w-48 h-64 flex flex-col items-center justify-end">
+            {/* シルエット */}
+            <div className="w-32 h-56 bg-gradient-to-b from-zinc-700 to-zinc-900 rounded-t-full opacity-80 flex items-center justify-center">
+              <span className="text-6xl mb-8">🍶</span>
+            </div>
           </div>
-          <div>
-            <div className="text-sm font-bold text-zinc-300">マスター</div>
-            <div className="text-xs text-zinc-600">Bar Lumoi · リュモワ</div>
+          {/* 名前プレート */}
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black/60 border border-amber-500/20 rounded px-3 py-1">
+            <p className="text-amber-400 text-xs font-bold tracking-widest whitespace-nowrap">マスター</p>
           </div>
         </div>
       </div>
 
-      {/* バーの雰囲気 */}
-      <div className="text-center py-6 border-b border-white/5">
-        <p className="text-xs text-zinc-700 tracking-widest">— 薄暗い照明、グラスの音、静かな夜 —</p>
-      </div>
-
-      {/* メッセージ */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 max-w-2xl mx-auto w-full space-y-6">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-            {msg.role === 'assistant' && (
-              <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center text-sm flex-shrink-0 mt-1">
-                🍶
-              </div>
-            )}
-            <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-              msg.role === 'user'
-                ? 'bg-amber-500/10 text-amber-100 border border-amber-500/20'
-                : 'bg-white/5 text-zinc-300 border border-white/5'
-            }`}>
-              {msg.content}
+      {/* セリフ吹き出し */}
+      <div className="relative z-10 mx-4 mb-4">
+        <div className="bg-black/80 border border-amber-500/20 rounded-2xl p-4 backdrop-blur-sm shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+          {/* 名前 */}
+          <div className="flex items-center gap-2 mb-2">
+            <div className="px-3 py-0.5 bg-amber-500/20 border border-amber-500/30 rounded text-amber-400 text-xs font-bold tracking-widest">
+              マスター
             </div>
           </div>
-        ))}
 
-        {loading && (
-          <div className="flex gap-3">
-            <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center text-sm flex-shrink-0">
-              🍶
-            </div>
-            <div className="bg-white/5 border border-white/5 rounded-2xl px-4 py-3">
-              <div className="flex gap-1 items-center">
-                <span className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></span>
-                <span className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></span>
-                <span className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></span>
+          {/* セリフ */}
+          <div className="min-h-[60px] flex items-center">
+            {loading && !currentText ? (
+              <div className="flex gap-1">
+                <span className="w-1.5 h-1.5 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
+                <span className="w-1.5 h-1.5 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '150ms'}} />
+                <span className="w-1.5 h-1.5 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '300ms'}} />
               </div>
-            </div>
+            ) : (
+              <p className="text-zinc-200 text-sm leading-relaxed">
+                {currentText}
+                {isTyping && <span className="animate-pulse">▌</span>}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* 直前のユーザーの発言 */}
+        {lastUserMessage && (
+          <div className="mt-2 text-right">
+            <span className="text-zinc-600 text-xs">「{lastUserMessage.content}」</span>
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* 入力欄 */}
-      <div className="border-t border-white/5 px-6 py-4 max-w-2xl mx-auto w-full">
-        <div className="flex gap-3 items-end">
+      <div className="relative z-10 border-t border-white/5 px-4 py-3 bg-black/40 backdrop-blur-sm">
+        <div className="flex gap-2 items-end max-w-2xl mx-auto">
           <textarea
+            ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => {
@@ -178,19 +202,20 @@ export default function BarClient({ displayName }: { displayName: string }) {
                 send()
               }
             }}
-            placeholder="マスターに話しかける..."
+            placeholder={isTyping ? "マスターが話しています..." : "マスターに話しかける..."}
+            disabled={isTyping}
             rows={2}
-            className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-white text-sm resize-none placeholder:text-zinc-600"
+            className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-white text-sm resize-none placeholder:text-zinc-600 disabled:opacity-40"
           />
           <button
             onClick={send}
-            disabled={loading || !input.trim()}
-            className="p-3 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-2xl hover:bg-amber-500/30 transition-all disabled:opacity-30"
+            disabled={loading || !input.trim() || isTyping}
+            className="p-3 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-2xl hover:bg-amber-500/30 transition-all disabled:opacity-30 text-sm font-bold"
           >
-            <Send className="w-4 h-4" />
+            送る
           </button>
         </div>
-        <p className="text-xs text-zinc-700 text-center mt-3">Enterで送信 · Shift+Enterで改行</p>
+        <p className="text-xs text-zinc-700 text-center mt-2">Enterで送信 · Shift+Enterで改行</p>
       </div>
     </div>
   )
