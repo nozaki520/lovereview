@@ -125,19 +125,13 @@ export default function BarClient({ displayName }: { displayName: string }) {
         <img
           src={MASTER_IMG}
           alt="マスター"
-          className="h-[60vh] object-contain object-top"
+          className="h-[80vh] object-contain object-top"
           style={{
             filter: 'drop-shadow(0 0 30px rgba(180,120,40,0.3))',
             maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
           }}
         />
-      </div>
-
-      {/* レイヤー3：カウンター（テーブル） */}
-      <div className="absolute z-20 left-0 right-0" style={{ bottom: '34%' }}>
-        <div className="h-16 bg-gradient-to-b from-amber-900/90 via-amber-800/95 to-amber-950/90 shadow-[0_-8px_30px_rgba(180,120,40,0.4),0_8px_20px_rgba(0,0,0,0.8)]" />
-        <div className="h-2 bg-gradient-to-r from-amber-700/50 via-amber-600/80 to-amber-700/50" />
       </div>
 
       {/* 戻るボタン */}
