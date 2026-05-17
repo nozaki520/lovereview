@@ -138,19 +138,16 @@ export default function BarClient({ displayName }: { displayName: string }) {
       </div>
 
       {/* マスターエリア */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-[42%]">
-        {/* マスターのプレースホルダー（画像差し替え予定） */}
+      <div className="relative z-10 flex-1 flex items-end justify-center">
         <div className="relative">
-          <div className="flex flex-col items-center justify-end">
-            {/* シルエット */}
-            <img
-              src="https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_9emc8i9emc8i9emc.png"
-              alt="マスター"
-              className="h-64 object-contain drop-shadow-2xl"
-            />
-          </div>
+          <img
+            src="https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_9emc8i9emc8i9emc.png"
+            alt="マスター"
+            className="h-[55vh] object-contain drop-shadow-2xl mix-blend-normal"
+            style={{ filter: 'drop-shadow(0 0 20px rgba(180,120,40,0.2))' }}
+          />
           {/* 名前プレート */}
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black/60 border border-amber-500/20 rounded px-3 py-1">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 border border-amber-500/20 rounded px-3 py-1">
             <p className="text-amber-400 text-xs font-bold tracking-widest whitespace-nowrap">マスター</p>
           </div>
         </div>
