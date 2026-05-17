@@ -8,7 +8,7 @@ type Message = {
   content: string
 }
 
-const MASTER_IMG = 'https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_9emc8i9emc8i9emc-removebg-preview.png'
+const MASTER_IMG = 'https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_9emc8i9emc8i9emc.png'
 const BG_IMG = 'https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_acjskgacjskgacjs.png'
 
 export default function BarClient({ displayName }: { displayName: string }) {
