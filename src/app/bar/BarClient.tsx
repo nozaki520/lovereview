@@ -92,8 +92,8 @@ export default function BarClient({ displayName }: { displayName: string }) {
         <div className="text-center">
           <div className="text-6xl mb-8">🚪</div>
           <p className="text-zinc-500 text-sm mb-2">営業中</p>
-          <h1 className="text-2xl font-bold text-zinc-200 mb-2">LoveRevi Bar</h1>
-          <p className="text-zinc-500 text-sm mb-12">扉を開けると、マスターがいます。</p>
+          <h1 className="text-2xl font-bold text-zinc-200 mb-2">Bar Lumoi</h1>
+          <p className="text-zinc-500 text-sm mb-12">扉を開けると、マスターがいます。<br />たった一瞬でも、自分を好きになれる場所。</p>
           <button
             onClick={enter}
             className="px-8 py-4 bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold rounded-full hover:bg-amber-500/20 transition-all"
@@ -123,7 +123,7 @@ export default function BarClient({ displayName }: { displayName: string }) {
           </div>
           <div>
             <div className="text-sm font-bold text-zinc-300">マスター</div>
-            <div className="text-xs text-zinc-600">LoveRevi Bar</div>
+            <div className="text-xs text-zinc-600">Bar Lumoi · リュモワ</div>
           </div>
         </div>
       </div>
