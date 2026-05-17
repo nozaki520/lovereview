@@ -120,12 +120,12 @@ export default function BarClient({ displayName }: { displayName: string }) {
 
       {/* レイヤー2：マスター（上半身のみ・カウンターの後ろに立っている） */}
       <div className="absolute z-10 left-1/2 -translate-x-1/2"
-        style={{ bottom: '-80%' }}
+        style={{ bottom: '-50%' }}
       >
         <img
           src={MASTER_IMG}
           alt="マスター"
-          className="h-[150vh] object-contain object-top"
+          className="h-[200vh] object-contain object-top"
           style={{
             filter: 'drop-shadow(0 0 30px rgba(180,120,40,0.3))',
             maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
