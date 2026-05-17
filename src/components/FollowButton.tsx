@@ -34,6 +34,24 @@ export default function FollowButton({ targetUserId, currentUserId, initialFollo
         .from('follows')
         .insert({ follower_id: currentUserId, following_id: targetUserId })
       setFollowing(true)
+
+      // フォロー通知
+      const { data: myProfile } = await supabase
+        .from('users')
+        .select('display_name, username')
+        .eq('id', currentUserId)
+        .single()
+
+      await supabase.from('notifications').insert({
+        user_id: targetUserId,
+        type: 'followed',
+        target_id: currentUserId,
+        is_read: false,
+        meta: {
+          user_display_name: myProfile?.display_name,
+          username: myProfile?.username,
+        }
+      })
     }
 
     setLoading(false)
