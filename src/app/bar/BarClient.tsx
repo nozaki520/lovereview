@@ -120,7 +120,7 @@ export default function BarClient({ displayName }: { displayName: string }) {
 
       {/* レイヤー2：マスター（上半身のみ・カウンターの後ろに立っている） */}
       <div className="absolute z-10 left-1/2 -translate-x-1/2"
-        style={{ bottom: '-80%' }}
+        style={{ bottom: '-110%' }}
       >
         <img
           src={MASTER_IMG}
