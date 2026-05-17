@@ -312,6 +312,7 @@ export default async function ItemDetailPage({
                         reviewId={review.id}
                         initialComments={review.review_comments || []}
                         currentUserId={user?.id || null}
+                        reviewOwnerId={review.user_id}
                       />
                     </div>
                   )}

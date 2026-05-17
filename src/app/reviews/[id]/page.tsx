@@ -187,6 +187,7 @@ export default async function ReviewPage({
           reviewId={review.id}
           initialComments={(review.review_comments as any[]) || []}
           currentUserId={user?.id || null}
+          reviewOwnerId={review.user_id}
         />
       </div>
 

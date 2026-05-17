@@ -20,10 +20,12 @@ export default function ReviewComments({
   reviewId,
   initialComments,
   currentUserId,
+  reviewOwnerId,
 }: {
   reviewId: string
   initialComments: Comment[]
   currentUserId: string | null
+  reviewOwnerId?: string
 }) {
   const [comments, setComments] = useState(initialComments)
   const [body, setBody] = useState('')
@@ -44,6 +46,27 @@ export default function ReviewComments({
     if (!error && data) {
       setComments(prev => [...prev, data as Comment])
       setBody('')
+
+      // 自分のレビュー以外へのコメントのみ通知
+      if (reviewOwnerId && reviewOwnerId !== currentUserId) {
+        const { data: myProfile } = await supabase
+          .from('users')
+          .select('display_name, username')
+          .eq('id', currentUserId)
+          .single()
+
+        await supabase.from('notifications').insert({
+          user_id: reviewOwnerId,
+          type: 'commented',
+          target_id: reviewId,
+          is_read: false,
+          meta: {
+            review_id: reviewId,
+            user_display_name: myProfile?.display_name,
+            username: myProfile?.username,
+          }
+        })
+      }
     }
     setLoading(false)
   }

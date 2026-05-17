@@ -276,6 +276,7 @@ export default async function HomePage({
                             reviewId={review.id}
                             initialComments={(review.review_comments as any[]) || []}
                             currentUserId={user.id}
+                            reviewOwnerId={event.users?.id}
                           />
                         </div>
                       </div>
