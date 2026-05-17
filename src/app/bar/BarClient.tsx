@@ -141,7 +141,7 @@ export default function BarClient({ displayName }: { displayName: string }) {
       <div className="relative z-10 flex-1 flex items-end justify-center">
         <div className="relative">
           <img
-            src="https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_9emc8i9emc8i9emc.png"
+            src="https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_9emc8i9emc8i9emc-removebg-preview.png"
             alt="マスター"
             className="h-[55vh] object-contain drop-shadow-2xl mix-blend-normal"
             style={{ filter: 'drop-shadow(0 0 20px rgba(180,120,40,0.2))' }}
