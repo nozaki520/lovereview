@@ -1,12 +1,15 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 
 type Message = {
   role: 'user' | 'assistant'
   content: string
 }
+
+const MASTER_IMG = 'https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_9emc8i9emc8i9emc.png'
+const BG_IMG = 'https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_acjskgacjskgacjs.png'
 
 export default function BarClient({ displayName }: { displayName: string }) {
   const [messages, setMessages] = useState<Message[]>([])
@@ -75,16 +78,18 @@ export default function BarClient({ displayName }: { displayName: string }) {
   // 扉画面
   if (!entered) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] relative overflow-hidden">
-        {/* 背景グラデーション */}
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-950/20 via-zinc-950 to-black" />
-        
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${BG_IMG})` }}
+        />
+        <div className="absolute inset-0 bg-black/70" />
         <div className="relative text-center z-10">
-          <div className="text-7xl mb-8 drop-shadow-lg">🚪</div>
+          <div className="text-7xl mb-8">🚪</div>
           <p className="text-amber-500/60 text-xs tracking-[0.3em] uppercase mb-3">Open</p>
           <h1 className="text-4xl font-bold text-white mb-1 tracking-wide">Bar Lumoi</h1>
-          <p className="text-zinc-500 text-sm tracking-widest mb-1">リュモワ</p>
-          <p className="text-zinc-600 text-xs mb-12">たった一瞬でも、自分を好きになれる場所。</p>
+          <p className="text-zinc-400 text-sm tracking-widest mb-1">リュモワ</p>
+          <p className="text-zinc-500 text-xs mb-12">たった一瞬でも、自分を好きになれる場所。</p>
           <button
             onClick={enter}
             className="px-10 py-4 bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold rounded-full hover:bg-amber-500/20 transition-all tracking-widest text-sm"
@@ -104,83 +109,76 @@ export default function BarClient({ displayName }: { displayName: string }) {
   const lastUserMessage = [...messages].reverse().find(m => m.role === 'user')
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0a0a] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
 
-      {/* バー背景 */}
-      <div className="absolute inset-0 z-0">
-        {/* 床 */}
-        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-amber-950/40 to-transparent" />
-        {/* カウンター */}
-        <div className="absolute bottom-[28%] left-0 right-0 h-8 bg-gradient-to-r from-amber-900/60 via-amber-800/80 to-amber-900/60 shadow-[0_-4px_20px_rgba(180,120,40,0.3)]" />
-        {/* 棚・ボトルのシルエット */}
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-end gap-2 opacity-20">
-          {[40,55,48,62,45,58,42,50,65,44].map((h, i) => (
-            <div key={i} className="bg-amber-200 rounded-sm" style={{width: '12px', height: `${h}px`}} />
-          ))}
-        </div>
-        {/* 照明 */}
-        <div className="absolute top-0 left-1/4 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl" />
-        <div className="absolute top-0 right-1/4 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl" />
-        {/* 全体暗め */}
-        <div className="absolute inset-0 bg-black/60" />
+      {/* レイヤー1：バー背景 */}
+      <div
+        className="absolute inset-0 bg-cover bg-center z-0"
+        style={{ backgroundImage: `url(${BG_IMG})` }}
+      />
+      <div className="absolute inset-0 bg-black/40 z-0" />
+
+      {/* レイヤー2：マスター（上半身のみ・カウンターの後ろに立っている） */}
+      <div className="absolute z-10 left-1/2 -translate-x-1/2"
+        style={{ bottom: '38%' }}
+      >
+        <img
+          src={MASTER_IMG}
+          alt="マスター"
+          className="h-[60vh] object-contain object-top"
+          style={{
+            filter: 'drop-shadow(0 0 30px rgba(180,120,40,0.3))',
+            maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+          }}
+        />
+      </div>
+
+      {/* レイヤー3：カウンター（テーブル） */}
+      <div className="absolute z-20 left-0 right-0" style={{ bottom: '34%' }}>
+        <div className="h-16 bg-gradient-to-b from-amber-900/90 via-amber-800/95 to-amber-950/90 shadow-[0_-8px_30px_rgba(180,120,40,0.4),0_8px_20px_rgba(0,0,0,0.8)]" />
+        <div className="h-2 bg-gradient-to-r from-amber-700/50 via-amber-600/80 to-amber-700/50" />
       </div>
 
       {/* 戻るボタン */}
-      <div className="absolute top-4 left-4 z-20">
-        <Link href="/home" className="text-zinc-700 hover:text-zinc-500 transition-colors text-xs tracking-widest">
+      <div className="absolute top-4 left-4 z-30">
+        <Link href="/home" className="text-zinc-500 hover:text-zinc-300 transition-colors text-xs tracking-widest">
           ← 出る
         </Link>
       </div>
 
       {/* Bar名 */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 text-center">
-        <p className="text-zinc-700 text-xs tracking-[0.3em]">Bar Lumoi · リュモワ</p>
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 text-center">
+        <p className="text-zinc-500 text-xs tracking-[0.3em]">Bar Lumoi · リュモワ</p>
       </div>
 
-      {/* マスターエリア */}
-      <div className="relative z-10 flex-1 flex items-end justify-center">
-        <div className="relative">
-          <img
-            src="https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_9emc8i9emc8i9emc-removebg-preview.png"
-            alt="マスター"
-            className="h-[55vh] object-contain drop-shadow-2xl mix-blend-normal"
-            style={{ filter: 'drop-shadow(0 0 20px rgba(180,120,40,0.2))' }}
-          />
-          {/* 名前プレート */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 border border-amber-500/20 rounded px-3 py-1">
-            <p className="text-amber-400 text-xs font-bold tracking-widest whitespace-nowrap">マスター</p>
-          </div>
-        </div>
-      </div>
+      {/* 下半分のスペーサー */}
+      <div className="flex-1" />
 
-      {/* セリフ吹き出し */}
-      <div className="relative z-10 mx-4 mb-4">
-        <div className="bg-black/80 border border-amber-500/20 rounded-2xl p-4 backdrop-blur-sm shadow-[0_0_30px_rgba(0,0,0,0.8)]">
-          {/* 名前 */}
-          <div className="flex items-center gap-2 mb-2">
+      {/* レイヤー4：セリフバー */}
+      <div className="relative z-30 mx-4 mb-4">
+        <div className="bg-black/85 border border-amber-500/20 rounded-2xl p-5 backdrop-blur-sm shadow-[0_0_40px_rgba(0,0,0,0.9)]">
+          <div className="flex items-center gap-2 mb-3">
             <div className="px-3 py-0.5 bg-amber-500/20 border border-amber-500/30 rounded text-amber-400 text-xs font-bold tracking-widest">
               マスター
             </div>
           </div>
-
-          {/* セリフ */}
-          <div className="min-h-[60px] flex items-center">
+          <div className="min-h-[64px] flex items-center">
             {loading && !currentText ? (
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
-                <span className="w-1.5 h-1.5 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '150ms'}} />
-                <span className="w-1.5 h-1.5 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '300ms'}} />
+              <div className="flex gap-1.5">
+                <span className="w-2 h-2 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
+                <span className="w-2 h-2 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '150ms'}} />
+                <span className="w-2 h-2 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '300ms'}} />
               </div>
             ) : (
-              <p className="text-zinc-200 text-sm leading-relaxed">
+              <p className="text-zinc-100 text-sm leading-relaxed">
                 {currentText}
-                {isTyping && <span className="animate-pulse">▌</span>}
+                {isTyping && <span className="animate-pulse text-amber-400">▌</span>}
               </p>
             )}
           </div>
         </div>
 
-        {/* 直前のユーザーの発言 */}
         {lastUserMessage && (
           <div className="mt-2 text-right">
             <span className="text-zinc-600 text-xs">「{lastUserMessage.content}」</span>
@@ -188,8 +186,8 @@ export default function BarClient({ displayName }: { displayName: string }) {
         )}
       </div>
 
-      {/* 入力欄 */}
-      <div className="relative z-10 border-t border-white/5 px-4 py-3 bg-black/40 backdrop-blur-sm">
+      {/* レイヤー5：入力欄 */}
+      <div className="relative z-30 border-t border-white/5 px-4 py-3 bg-black/60 backdrop-blur-sm">
         <div className="flex gap-2 items-end max-w-2xl mx-auto">
           <textarea
             ref={inputRef}
@@ -209,7 +207,7 @@ export default function BarClient({ displayName }: { displayName: string }) {
           <button
             onClick={send}
             disabled={loading || !input.trim() || isTyping}
-            className="p-3 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-2xl hover:bg-amber-500/30 transition-all disabled:opacity-30 text-sm font-bold"
+            className="p-3 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-2xl hover:bg-amber-500/30 transition-all disabled:opacity-30 text-sm font-bold px-5"
           >
             送る
           </button>
