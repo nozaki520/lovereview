@@ -141,11 +141,13 @@ export default function BarClient({ displayName }: { displayName: string }) {
       <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-[42%]">
         {/* マスターのプレースホルダー（画像差し替え予定） */}
         <div className="relative">
-          <div className="w-48 h-64 flex flex-col items-center justify-end">
+          <div className="flex flex-col items-center justify-end">
             {/* シルエット */}
-            <div className="w-32 h-56 bg-gradient-to-b from-zinc-700 to-zinc-900 rounded-t-full opacity-80 flex items-center justify-center">
-              <span className="text-6xl mb-8">🍶</span>
-            </div>
+            <img
+              src="https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_9emc8i9emc8i9emc.png"
+              alt="マスター"
+              className="h-64 object-contain drop-shadow-2xl"
+            />
           </div>
           {/* 名前プレート */}
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-black/60 border border-amber-500/20 rounded px-3 py-1">
