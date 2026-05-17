@@ -3,86 +3,105 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 
-type Message = {
-  role: 'user' | 'assistant'
-  content: string
-}
-
 const MASTER_IMG = 'https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Adobe%20Express%20-%20file.png'
 const BG_IMG = 'https://iwmdbxoqfbyxpidhopdt.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_acjskgacjskgacjs.png'
 
+const SCRIPTS = {
+  greeting: [
+    "いらっしゃい。今夜もよく来てくれたね。さあ、座って。",
+    "おや、来てくれたか。ちょうどグラスを磨いていたところだよ。",
+    "いらっしゃいませ。今夜は静かないい夜だ。ゆっくりしていってくれ。",
+  ],
+  topic: [
+    "今日は新しい商品が登録されたようだね。誰かの大切なものが、また一つ増えたんだろうな。",
+    "今日も誰かが『まだ使ってる』って押したみたいだよ。小さな積み重ねって、いいものだね。",
+    "時間をかけたレビューって、読むだけで温かい気持ちになるね。急いで書かれた言葉とは、やっぱり違う。",
+  ],
+  menu: [
+    "そんな話をしていたら、今夜はこれがいいかな。じっくり熟成させたウイスキーのロック。時間が育てた味だよ。",
+    "今夜はジンのソーダ割りはどうだろう。さっぱりしてるけど、香りに深みがある。気持ちが少し軽くなるかもしれない。",
+    "ホットのアイリッシュコーヒーにしようか。温かくて、ほんの少し甘くて、夜に馴染む味だよ。",
+  ],
+  menuServe: [
+    "どうぞ。ゆっくりしていってくれ。",
+    "さあ、どうぞ。今夜は急がなくていいよ。",
+    "遠慮なく、ゆっくりしていってくれ。",
+  ],
+  theme: [
+    "好きなものを大切にするって、案外勇気がいることだと思う。流行とか、人の目とか、気になっちゃうからね。でもそれを続けている人は、なんか素敵だなって思うよ。",
+    "長く使い続けるものって、その人の一部になってくるよね。傷がついても、古くなっても、それがまた味になる。そういうものを持てるって、幸せなことだと思うよ。",
+    "誰かの『まだ使ってる』って言葉、すごく正直だと思う。レビューってさ、本当はそういう言葉が一番信頼できるんじゃないかな。",
+  ],
+  closing: [
+    "おっと、そろそろこんな時間か。また来てくれたら嬉しいよ。ゆっくり帰りなよ。",
+    "今夜は来てくれてありがとう。また気が向いたら、いつでもここにいるから。",
+    "扉はいつでも開いてるよ。また話しに来てくれ。おやすみ。",
+  ],
+}
+
+const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)]
+
+const FLOW = [
+  () => pick(SCRIPTS.greeting),
+  () => pick(SCRIPTS.topic),
+  () => pick(SCRIPTS.menu),
+  () => pick(SCRIPTS.menuServe),
+  () => pick(SCRIPTS.theme),
+  () => pick(SCRIPTS.closing),
+]
+
 export default function BarClient({ displayName }: { displayName: string }) {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [entered, setEntered] = useState(false)
   const [currentText, setCurrentText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const [entered, setEntered] = useState(false)
+  const [flowIndex, setFlowIndex] = useState(0)
+  const [isEnd, setIsEnd] = useState(false)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const typeText = (text: string) => {
+  const typeText = (text: string, onDone?: () => void) => {
     setIsTyping(true)
     setCurrentText('')
     let i = 0
-    const timer = setInterval(() => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    timerRef.current = setInterval(() => {
       setCurrentText(text.slice(0, i + 1))
       i++
       if (i >= text.length) {
-        clearInterval(timer)
+        clearInterval(timerRef.current!)
         setIsTyping(false)
+        onDone?.()
       }
     }, 30)
   }
 
-  const enter = async () => {
+  const enter = () => {
     setEntered(true)
-    setLoading(true)
-    const greeting = await callClaude([], `${displayName}さんが今夜バーに入ってきました。カウンター越しに、短く穏やかに声をかけてください。`)
-    setMessages([{ role: 'assistant', content: greeting }])
-    typeText(greeting)
-    setLoading(false)
+    const text = pick(SCRIPTS.greeting)
+    typeText(text)
+    setFlowIndex(1)
   }
 
-  const send = async () => {
-    if (!input.trim() || loading || isTyping) return
-    const userMsg: Message = { role: 'user', content: input.trim() }
-    const newMessages = [...messages, userMsg]
-    setMessages(newMessages)
-    setInput('')
-    setLoading(true)
-    setCurrentText('')
-    const reply = await callClaude(newMessages, '')
-    setMessages(prev => [...prev, { role: 'assistant', content: reply }])
-    typeText(reply)
-    setLoading(false)
-  }
-
-  async function callClaude(msgs: Message[], prompt: string) {
-    try {
-      const response = await fetch('/api/bar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: prompt
-            ? [{ role: 'user', content: prompt }]
-            : msgs.map(m => ({ role: m.role, content: m.content })),
-        }),
-      })
-      const data = await response.json()
-      return data.text || '……'
-    } catch {
-      return 'すみません、少し聞き取れませんでした。'
+  const next = () => {
+    if (isTyping) {
+      // タイプ中にタップしたら即表示
+      if (timerRef.current) clearInterval(timerRef.current)
+      setIsTyping(false)
+      return
     }
+    if (flowIndex >= FLOW.length) {
+      setIsEnd(true)
+      return
+    }
+    const text = FLOW[flowIndex]()
+    typeText(text)
+    setFlowIndex(prev => prev + 1)
   }
 
   // 扉画面
   if (!entered) {
     return (
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${BG_IMG})` }}
-        />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${BG_IMG})` }} />
         <div className="absolute inset-0 bg-black/70" />
         <div className="relative text-center z-10">
           <div className="text-7xl mb-8">🚪</div>
@@ -106,22 +125,15 @@ export default function BarClient({ displayName }: { displayName: string }) {
     )
   }
 
-  const lastUserMessage = [...messages].reverse().find(m => m.role === 'user')
-
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden" onClick={!isEnd ? next : undefined}>
 
       {/* レイヤー1：バー背景 */}
-      <div
-        className="absolute inset-0 bg-cover bg-center z-0"
-        style={{ backgroundImage: `url(${BG_IMG})` }}
-      />
+      <div className="absolute inset-0 bg-cover bg-center z-0" style={{ backgroundImage: `url(${BG_IMG})` }} />
       <div className="absolute inset-0 bg-black/40 z-0" />
 
-      {/* レイヤー2：マスター（上半身のみ・カウンターの後ろに立っている） */}
-      <div className="absolute z-10 left-1/2 -translate-x-1/2"
-        style={{ bottom: '-100%' }}
-      >
+      {/* レイヤー2：マスター */}
+      <div className="absolute z-10 left-1/2 -translate-x-1/2" style={{ bottom: '-100%' }}>
         <img
           src={MASTER_IMG}
           alt="マスター"
@@ -135,7 +147,7 @@ export default function BarClient({ displayName }: { displayName: string }) {
       </div>
 
       {/* 戻るボタン */}
-      <div className="absolute top-4 left-4 z-30">
+      <div className="absolute top-4 left-4 z-30" onClick={e => e.stopPropagation()}>
         <Link href="/home" className="text-zinc-500 hover:text-zinc-300 transition-colors text-xs tracking-widest">
           ← 出る
         </Link>
@@ -146,67 +158,40 @@ export default function BarClient({ displayName }: { displayName: string }) {
         <p className="text-zinc-500 text-xs tracking-[0.3em]">Bar Lumoi · リュモワ</p>
       </div>
 
-      {/* 下半分のスペーサー */}
       <div className="flex-1" />
 
       {/* レイヤー4：セリフバー */}
       <div className="relative z-30 mx-4 mb-4">
         <div className="bg-black/85 border border-amber-500/20 rounded-2xl p-5 backdrop-blur-sm shadow-[0_0_40px_rgba(0,0,0,0.9)]">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center justify-between mb-3">
             <div className="px-3 py-0.5 bg-amber-500/20 border border-amber-500/30 rounded text-amber-400 text-xs font-bold tracking-widest">
               マスター
             </div>
-          </div>
-          <div className="min-h-[64px] flex items-center">
-            {loading && !currentText ? (
-              <div className="flex gap-1.5">
-                <span className="w-2 h-2 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
-                <span className="w-2 h-2 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '150ms'}} />
-                <span className="w-2 h-2 bg-amber-500/50 rounded-full animate-bounce" style={{animationDelay: '300ms'}} />
-              </div>
-            ) : (
-              <p className="text-zinc-100 text-sm leading-relaxed">
-                {currentText}
-                {isTyping && <span className="animate-pulse text-amber-400">▌</span>}
+            {!isEnd && (
+              <p className="text-zinc-600 text-xs animate-pulse">
+                {isTyping ? 'タップで即表示' : 'タップで次へ'}
               </p>
             )}
           </div>
+          <div className="min-h-[64px] flex items-center">
+            <p className="text-zinc-100 text-sm leading-relaxed">
+              {currentText}
+              {isTyping && <span className="animate-pulse text-amber-400">▌</span>}
+            </p>
+          </div>
         </div>
 
-        {lastUserMessage && (
-          <div className="mt-2 text-right">
-            <span className="text-zinc-600 text-xs">「{lastUserMessage.content}」</span>
+        {/* 終了後のボタン */}
+        {isEnd && (
+          <div className="mt-4 text-center" onClick={e => e.stopPropagation()}>
+            <Link
+              href="/home"
+              className="inline-block px-8 py-3 bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold rounded-full hover:bg-amber-500/20 transition-all text-sm tracking-widest"
+            >
+              バーを出る
+            </Link>
           </div>
         )}
-      </div>
-
-      {/* レイヤー5：入力欄 */}
-      <div className="relative z-30 border-t border-white/5 px-4 py-3 bg-black/60 backdrop-blur-sm">
-        <div className="flex gap-2 items-end max-w-2xl mx-auto">
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                send()
-              }
-            }}
-            placeholder={isTyping ? "マスターが話しています..." : "マスターに話しかける..."}
-            disabled={isTyping}
-            rows={2}
-            className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-white text-sm resize-none placeholder:text-zinc-600 disabled:opacity-40"
-          />
-          <button
-            onClick={send}
-            disabled={loading || !input.trim() || isTyping}
-            className="p-3 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-2xl hover:bg-amber-500/30 transition-all disabled:opacity-30 text-sm font-bold px-5"
-          >
-            送る
-          </button>
-        </div>
-        <p className="text-xs text-zinc-700 text-center mt-2">Enterで送信 · Shift+Enterで改行</p>
       </div>
     </div>
   )
