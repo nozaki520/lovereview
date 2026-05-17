@@ -66,20 +66,17 @@ export default function BarClient({ displayName }: { displayName: string }) {
 
   async function callClaude(msgs: Message[], prompt: string) {
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('/api/bar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: SYSTEM_PROMPT,
           messages: prompt
             ? [{ role: 'user', content: prompt }]
             : msgs.map(m => ({ role: m.role, content: m.content })),
         }),
       })
       const data = await response.json()
-      return data.content?.[0]?.text || '……'
+      return data.text || '……'
     } catch {
       return 'すみません、少し聞き取れませんでした。'
     }
