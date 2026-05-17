@@ -12,9 +12,9 @@ export async function GET(request: Request) {
 
   // 全ユーザーの購入記録を取得
   const { data: userItems } = await supabase
-    .from('user_items')
-    .select('*, users(id)')
-    .eq('is_still_using', true)
+        .from('user_items')
+        .select('*, users(id), items(id, name)')
+        .eq('is_still_using', true)
 
   if (!userItems) return NextResponse.json({ success: true, count: 0 })
 
@@ -51,8 +51,12 @@ export async function GET(request: Request) {
         notifications.push({
           user_id: userItem.user_id,
           type: typeMap[daysElapsed],
-          target_id: userItem.id,
+          target_id: userItem.item_id,
           is_read: false,
+          meta: {
+            item_name: (userItem.items as any)?.name,
+            item_id: userItem.item_id,
+          }
         })
       }
     }

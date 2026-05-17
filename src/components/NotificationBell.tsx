@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Bell } from 'lucide-react'
+import Link from 'next/link'
 
 interface Notification {
   id: string
@@ -10,19 +11,45 @@ interface Notification {
   is_read: boolean
   created_at: string
   target_id: string
+  meta?: {
+    item_name?: string
+    item_id?: string
+    user_display_name?: string
+    username?: string
+    review_id?: string
+  }
 }
 
 interface NotificationBellProps {
   initialNotifications: Notification[]
 }
 
-const typeMessages: Record<string, string> = {
-  'reminder_day1': '🌱 購入から1日！ファーストインプレッションを書いてみよう',
-  'reminder_week1': '🌱 購入から1週間！使い心地はどうですか？',
-  'reminder_month1': '🌿 購入から1ヶ月！レビューを書いてみよう',
-  'reminder_month3': '🌿 購入から3ヶ月！3ヶ月後レビューのタイミングです',
-  'reminder_month6': '🌳 購入から半年！半年後レビューを書いてみよう',
-  'reminder_year1': '🌳 購入から1年！1年後レビューで影響度スコアアップ！',
+function getNotificationContent(n: Notification): { message: string; url: string } {
+  const itemName = n.meta?.item_name ? `「${n.meta.item_name}」` : ''
+  const userName = n.meta?.user_display_name ? `${n.meta.user_display_name}さん` : '誰か'
+
+  switch (n.type) {
+    case 'reminder_day1':
+      return { message: `🌱 ${itemName}購入から1日！ファーストインプレッションを書いてみよう`, url: `/items/${n.meta?.item_id || n.target_id}` }
+    case 'reminder_week1':
+      return { message: `🌱 ${itemName}購入から1週間！使い心地はどうですか？`, url: `/items/${n.meta?.item_id || n.target_id}` }
+    case 'reminder_month1':
+      return { message: `🌿 ${itemName}購入から1ヶ月！レビューを書いてみよう`, url: `/items/${n.meta?.item_id || n.target_id}` }
+    case 'reminder_month3':
+      return { message: `🌿 ${itemName}購入から3ヶ月！3ヶ月後レビューのタイミングです`, url: `/items/${n.meta?.item_id || n.target_id}` }
+    case 'reminder_month6':
+      return { message: `🌳 ${itemName}購入から半年！半年後レビューを書いてみよう`, url: `/items/${n.meta?.item_id || n.target_id}` }
+    case 'reminder_year1':
+      return { message: `🌳 ${itemName}購入から1年！1年後レビューを書いてみよう`, url: `/items/${n.meta?.item_id || n.target_id}` }
+    case 'followed':
+      return { message: `👤 ${userName}にフォローされました`, url: `/profile/${n.meta?.username || ''}` }
+    case 'liked':
+      return { message: `❤️ ${userName}があなたのレビューにいいねしました`, url: `/reviews/${n.meta?.review_id || n.target_id}` }
+    case 'commented':
+      return { message: `💬 ${userName}があなたのレビューにコメントしました`, url: `/reviews/${n.meta?.review_id || n.target_id}` }
+    default:
+      return { message: n.type, url: '/home' }
+  }
 }
 
 export default function NotificationBell({ initialNotifications }: NotificationBellProps) {
@@ -65,19 +92,24 @@ export default function NotificationBell({ initialNotifications }: NotificationB
           </div>
           <div className="max-h-80 overflow-y-auto">
             {notifications.length > 0 ? (
-              notifications.map(n => (
-                <div
-                  key={n.id}
-                  className={`p-4 border-b border-white/5 text-sm ${
-                    n.is_read ? 'text-zinc-500' : 'text-zinc-200 bg-amber-500/5'
-                  }`}
-                >
-                  {typeMessages[n.type] || n.type}
-                  <div className="text-xs text-zinc-600 mt-1">
-                    {new Date(n.created_at).toLocaleDateString('ja-JP')}
-                  </div>
-                </div>
-              ))
+              notifications.map(n => {
+                const { message, url } = getNotificationContent(n)
+                return (
+                  <Link
+                    key={n.id}
+                    href={url}
+                    onClick={() => setOpen(false)}
+                    className={`block p-4 border-b border-white/5 text-sm hover:bg-white/5 transition-colors ${
+                      n.is_read ? 'text-zinc-500' : 'text-zinc-200 bg-amber-500/5'
+                    }`}
+                  >
+                    {message}
+                    <div className="text-xs text-zinc-600 mt-1">
+                      {new Date(n.created_at).toLocaleDateString('ja-JP')}
+                    </div>
+                  </Link>
+                )
+              })
             ) : (
               <div className="p-8 text-center text-zinc-500 text-sm">
                 通知はありません
